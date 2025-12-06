@@ -200,10 +200,13 @@ const COLORS = {
   light: {
     primary: '#2563eb', // Blue 600
     primaryHover: '#1d4ed8', // Blue 700
+    primaryLight: '#dbeafe', // Blue 100
     disabled: '#cbd5e1', // Slate 300
-    successBg: '#dcfce7', // Green 100
+    success: '#16a34a', // Green 600
+    successLight: '#dcfce7', // Green 100
     successBorder: '#16a34a', // Green 600
     successText: '#14532d', // Green 900
+    error: '#dc2626', // Red 600
     errorBg: '#fee2e2', // Red 100
     errorBorder: '#b91c1c', // Red 700
     errorText: '#7f1d1d', // Red 900
@@ -211,16 +214,20 @@ const COLORS = {
     surface: '#ffffff',
     textMain: '#1e293b', // Slate 800
     textSub: '#475569', // Slate 600
+    textSubLight: '#cbd5e1', // Slate 300
     border: '#e2e8f0', // Slate 200
     inputBg: '#ffffff',
   },
   dark: {
     primary: '#3b82f6', // Blue 500
     primaryHover: '#60a5fa', // Blue 400
+    primaryLight: '#1e3a8a', // Blue 900
     disabled: '#475569', // Slate 600
-    successBg: '#064e3b', // Green 900
+    success: '#059669', // Green 600
+    successLight: '#064e3b', // Green 900
     successBorder: '#059669', // Green 600
     successText: '#a7f3d0', // Green 200
+    error: '#dc2626', // Red 600
     errorBg: '#7f1d1d', // Red 900
     errorBorder: '#dc2626', // Red 600
     errorText: '#fecaca', // Red 200
@@ -228,6 +235,7 @@ const COLORS = {
     surface: '#1e293b', // Slate 800
     textMain: '#f1f5f9', // Slate 100
     textSub: '#94a3b8', // Slate 400
+    textSubLight: '#475569', // Slate 600
     border: '#334155', // Slate 700
     inputBg: '#0f172a', // Slate 900
   }
@@ -1014,7 +1022,7 @@ const ResponsiveStyles = ({ theme }: { theme: Theme }) => (
   <style>{`
     body { background-color: ${COLORS[theme].background}; color: ${COLORS[theme].textMain}; transition: background-color 0.3s, color 0.3s; }
     .ai-fab {
-      position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+      position: fixed; bottom: 100px; right: 30px; width: 60px; height: 60px;
       border-radius: 50%; background: ${COLORS[theme].primary}; color: white;
       border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 24px;
       cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center;
@@ -1055,8 +1063,63 @@ const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 
 
 const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: any) => {
   const [input, setInput] = useState("");
+  const [position, setPosition] = useState({ x: window.innerWidth - 350, y: 0 });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
+  const startPos = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
   const colors = COLORS[theme];
+  
+  // 拖拽开始
+  const handleDragStart = (e: React.MouseEvent) => {
+    if (!dragRef.current) return;
+    // 阻止默认文本选择行为
+    e.preventDefault();
+    isDragging.current = true;
+    startPos.current = {
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    };
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleDragEnd);
+  };
+  
+  // 拖拽中
+  const handleDrag = (e: MouseEvent) => {
+    if (!isDragging.current) return;
+    // 获取窗口尺寸限制
+    const maxX = window.innerWidth - 350;
+    const maxY = window.innerHeight - 50;
+    
+    // 计算新位置并限制在窗口内
+    let newX = e.clientX - startPos.current.x;
+    let newY = e.clientY - startPos.current.y;
+    
+    newX = Math.max(0, Math.min(newX, maxX));
+    newY = Math.max(0, Math.min(newY, maxY));
+    
+    setPosition({ x: newX, y: newY });
+  };
+  
+  // 拖拽结束，取消自动吸附，让用户可以自由放置
+  const handleDragEnd = () => {
+    isDragging.current = false;
+    document.removeEventListener('mousemove', handleDrag);
+    document.removeEventListener('mouseup', handleDragEnd);
+  };
+  
+  // 响应窗口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      if (position.x > screenWidth - 350) {
+        setPosition(prev => ({ ...prev, x: screenWidth - 350 }));
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [position.x]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -1071,15 +1134,28 @@ const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: an
   return (
     <>
       {isOpen && <div onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 40 }} />}
-      <div style={{
-        position: 'fixed', right: 0, top: 0, bottom: 0, width: '350px', maxWidth: '85vw',
+      <div ref={dragRef} style={{
+        position: 'fixed', top: position.y, bottom: 0, width: '350px', maxWidth: '85vw',
+        left: position.x,
         backgroundColor: colors.surface, zIndex: 50,
         boxShadow: '-4px 0 15px rgba(0,0,0,0.3)',
         transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 0.3s ease-in-out',
         display: 'flex', flexDirection: 'column'
       }}>
-        <div style={{ padding: '16px', borderBottom: '1px solid ' + colors.border + '', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: colors.background }}>
+        <div 
+          style={{ 
+            padding: '16px', 
+            borderBottom: '1px solid ' + colors.border + '', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            background: colors.background,
+            cursor: 'move',
+            userSelect: 'none'
+          }}
+          onMouseDown={handleDragStart}
+        >
           <h3 style={{ margin: 0, color: colors.textMain }}>🤖 AI 答疑助手</h3>
           <button onClick={onClose} style={{ border: 'none', background: 'transparent', fontSize: '24px', cursor: 'pointer', color: colors.textSub }}>×</button>
         </div>
@@ -1268,13 +1344,18 @@ const App = () => {
   const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
   const [totalBatches, setTotalBatches] = useState(0);
   const [toast, setToast] = useState<{msg: string, type: 'success'|'error'} | null>(null);
+  const [isGeneratingInBank, setIsGeneratingInBank] = useState(false);
+  const [showAnswerSheetModal, setShowAnswerSheetModal] = useState(false);
 
-  const isGenerating = generationStage !== 'idle';
+  const isGenerating = false; // 不再显示前端阻塞弹窗，所有生成操作都在后台运行
+
+  // 答题记录状态
 
   const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, StoredQuizAnswer>>({});
   const [tempSelection, setTempSelection] = useState<string[]>([]);
+  const [quizTime, setQuizTime] = useState(0); // 答题时间（秒）
   
   // --- Persistent State ---
   // Using normalizeQuizJson to ensure stored mistakes/trash are valid, but if array is valid, keep it.
@@ -1332,9 +1413,35 @@ const App = () => {
     const [editingTitle, setEditingTitle] = useState("");
     const [historyViewMode, setHistoryViewMode] = useState<HistoryViewMode>('byBank');
     
+    // 合并题库功能状态
+    const [selectedBankIds, setSelectedBankIds] = useState<string[]>([]);
+const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
+    
+    // 多任务队列状态
+    type TaskType = 'mergeBanks' | 'exportBanks' | 'other';
+    type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
+    type Task = {
+      id: string;
+      type: TaskType;
+      title: string;
+      status: TaskStatus;
+      progress: number;
+      banks: QuizBank[];
+      result?: any;
+      error?: string;
+    };
+    const [taskQueue, setTaskQueue] = useState<Task[]>([]);
+    
     // Jump to Question State (moved from renderQuiz to fix Hook rules violation)
     const [jumpInput, setJumpInput] = useState('');
-    const [jumpError, setJumpError] = useState('');
+  const [jumpError, setJumpError] = useState('');
+  
+  // 格式化时间函数
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const [showClearMistakesDialog, setShowClearMistakesDialog] = useState(false);
   const [showClearTrashDialog, setShowClearTrashDialog] = useState(false);
@@ -1380,6 +1487,19 @@ const App = () => {
   useEffect(() => { localStorage.setItem(QUESTION_META_KEY, JSON.stringify(questionMetaMap)); }, [questionMetaMap]);
   useEffect(() => { sessionStorage.setItem('quiz_uploaded_files', JSON.stringify(uploadedFiles)); }, [uploadedFiles]);
   useEffect(() => { localStorage.setItem(THEME_KEY, theme); }, [theme]);
+  
+  // 答题时间计时器
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (screen === 'quiz') {
+      timer = setInterval(() => {
+        setQuizTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [screen]);
   useEffect(() => { localStorage.setItem(APP_TITLE_KEY, appTitle); }, [appTitle]);
   useEffect(() => { localStorage.setItem(SYLLABUS_PRESETS_KEY, JSON.stringify(syllabusPresets)); }, [syllabusPresets]);
 
@@ -1487,6 +1607,7 @@ const App = () => {
       setTempSelection([]);
       setScreen('quiz');
       setConfirmClearProgress(false);
+      setQuizTime(0); // 重置答题时间
   };
 
   const handleResumeConfirm = () => {
@@ -2060,7 +2181,7 @@ const App = () => {
   };
 
   // --- Batch Generation Logic ---
-  const generateQuiz = async () => {
+  const generateQuiz = async (addToBank: boolean = false) => {
     if (!apiConfig.apiKey) return showToast("请输入 API Key");
     if (uploadedFiles.length === 0) return showToast("请先上传文件");
 
@@ -2210,7 +2331,7 @@ const App = () => {
 
       setGenerationStage('postProcessing');
 
-      if (allQuestions.length === 0) throw new Error("生成的题目与历史题库完全重复或生成失败！");
+      if (allQuestions.length === 0) throw new Error("生成的题目与题库完全重复或生成失败！");
 
       // NEW: Enhance Questions with ID tags and construct title
       const genSyllabus = syllabusPresets.find(p => p.id === genSyllabusId);
@@ -2244,8 +2365,8 @@ const App = () => {
       };
 
       setHistory(prev => [newBank, ...prev]);
-      startQuizWithResume({ sessionKey: buildBankSessionKey(newBank.id), questions: finalQuiz, title: newBank.title });
       setChatMessages([]); 
+      showToast("题目生成成功，已添加到题库列表", "success");
 
     } catch (err: any) {
       showToast(err.message);
@@ -2254,6 +2375,8 @@ const App = () => {
       setGenerationStage('idle');
       setCurrentBatchIndex(0);
       setTotalBatches(0);
+      // 如果是后台生成题库，关闭生成进度弹窗
+      setIsGeneratingInBank(false);
     }
   };
 
@@ -2320,6 +2443,110 @@ const App = () => {
      setHistory(prev => prev.map(b => b.id === editingBankId ? { ...b, title: editingTitle.trim() } : b));
      setEditingBankId(null);
      setEditingTitle("");
+  };
+  
+  // 合并选中题库的逻辑
+  const handleMergeSelectedBanks = () => {
+    if (selectedBankIds.length < 2) return;
+    
+    // 获取选中的题库
+    const selectedBanks = history.filter(bank => selectedBankIds.includes(bank.id));
+    if (selectedBanks.length < 2) return;
+    
+    // 创建新的合并题库 - 保留所有题目，为每个题目和选项生成新的唯一ID
+    const mergedQuestions = selectedBanks.flatMap(bank => bank.questions);
+    
+    // 为每个合并的题目和选项生成新的唯一ID，确保所有题目都被保留且无冲突
+    const uniqueQuestions = mergedQuestions.map((question, questionIndex) => {
+      // 为当前题目生成新ID
+      const newQuestionId = `merged_${Date.now()}_${questionIndex}`;
+      
+      // 为每个选项生成新ID
+      const newOptions = question.options.map((option, optionIndex) => ({
+        ...option,
+        id: `opt_${newQuestionId}_${optionIndex}` // 基于新题目ID生成选项ID
+      }));
+      
+      // 更新answerIds以匹配新的选项ID
+      // 我们需要根据选项的原始文本或其他标识来找到正确的选项
+      const newAnswerIds = question.answerIds.map(oldAnswerId => {
+        // 找到原始选项
+        const originalOption = question.options.find(opt => opt.id === oldAnswerId);
+        if (!originalOption) return '';
+        
+        // 找到新选项中对应的选项
+        const newOption = newOptions.find(opt => opt.text === originalOption.text);
+        return newOption ? newOption.id : '';
+      }).filter(id => id !== ''); // 过滤掉找不到的选项
+      
+      return {
+        ...question,
+        id: newQuestionId,
+        options: newOptions,
+        answerIds: newAnswerIds
+      };
+    });
+    
+    // 创建合并后的新题库
+    const newBank: QuizBank = {
+      id: `bank_${Date.now()}`,
+      title: `合并题库_${new Date().toLocaleString()}`,
+      createdAt: new Date().toISOString(),
+      sourceFiles: Array.from(new Set(selectedBanks.flatMap(bank => bank.sourceFiles))),
+      questionCount: uniqueQuestions.length,
+      questions: uniqueQuestions
+    };
+    
+    // 添加到任务队列
+    const newTask: Task = {
+      id: `task_${Date.now()}`,
+      type: 'mergeBanks',
+      title: `合并 ${selectedBanks.length} 个题库`,
+      status: 'in_progress',
+      progress: 50,
+      banks: selectedBanks
+    };
+    
+    setTaskQueue(prev => [...prev, newTask]);
+    
+    // 更新历史记录，移除旧题库并添加新题库
+    setTimeout(() => {
+      const updatedHistory = history.filter(bank => !selectedBankIds.includes(bank.id));
+      setHistory([newBank, ...updatedHistory]);
+      
+      // 更新任务状态
+      setTaskQueue(prev => prev.map(task => 
+        task.id === newTask.id 
+          ? { ...task, status: 'completed', progress: 100, result: newBank } 
+          : task
+      ));
+      
+      // 清空选择
+      setSelectedBankIds([]);
+    }, 1000);
+  };
+
+  // 处理文件上传生成题库
+  const handleFileUploadForBank = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    // 设置生成状态
+    setIsGeneratingInBank(true);
+    setLoading(true);
+    setGenerationStage('解析文件');
+    setCurrentBatchIndex(0);
+    setTotalBatches(files.length);
+    setUploadedFiles(files);
+
+    try {
+      // 调用generateQuiz生成题目
+      await generateQuiz(true); // 传入addToBank参数
+    } catch (error) {
+      showToast((error as Error).message || '题目生成失败');
+      setIsGeneratingInBank(false);
+      setLoading(false);
+    }
   };
 
   const startBookPractice = (bookName: string) => {
@@ -2408,7 +2635,7 @@ const App = () => {
         </button>
         <button onClick={() => setScreen('history')} style={{ padding: '20px', borderRadius: '12px', border: 'none', background: theme === 'dark' ? '#1e3a8a' : '#dbeafe', color: theme === 'dark' ? '#bfdbfe' : '#1e40af', cursor: 'pointer', textAlign: 'left' }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{history.length}</div>
-          <div style={{ fontSize: '14px' }}>历史题库</div>
+          <div style={{ fontSize: '14px' }}>题库</div>
         </button>
       </div>
 
@@ -2571,10 +2798,10 @@ const App = () => {
                                 const renderNestedTopics = (topic: SyllabusTopic, level: number = 0) => {
                                     const indent = '  '.repeat(level);
                                     return (
-                                        <>
-                                            <option key={topic.id} value={topic.id}>{indent}{topic.title}</option>
+                                        <React.Fragment key={topic.id}>
+                                            <option value={topic.id}>{indent}{topic.title}</option>
                                             {topic.topics?.map((subTopic) => renderNestedTopics(subTopic, level + 1))}
-                                        </>
+                                        </React.Fragment>
                                     );
                                 };
                                 return renderNestedTopics(t);
@@ -2688,7 +2915,7 @@ const App = () => {
           <input type="number" min="5" max="30" step="1" value={batchSize} onChange={(e) => saveBatchSize(parseInt(e.target.value))} style={{ width: '100%', padding: '9px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }} />
           <p style={{ fontSize: '12px', color: colors.textSub, marginTop: '5px' }}>建议单批 8–15 题。当前总题量 {settings.numQuestions} 题，大约分为 {Math.ceil(settings.numQuestions / batchSize)} 批调用。</p>
         </div>
-        <button onClick={generateQuiz} disabled={loading || uploadedFiles.length === 0} style={{ width: '100%', padding: '12px', borderRadius: '8px', fontWeight: '600', fontSize: '16px', border: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', transition: 'background 0.3s', cursor: (loading || uploadedFiles.length === 0) ? 'not-allowed' : 'pointer', backgroundColor: (loading || uploadedFiles.length === 0) ? colors.disabled : colors.primary, color: (loading || uploadedFiles.length === 0) ? colors.textSub : 'white' }}>{loading ? "生成中..." : "✨ 生成试卷"}</button>
+        <button onClick={async () => { setIsGeneratingInBank(true); await generateQuiz(true); }} disabled={loading || uploadedFiles.length === 0} style={{ width: '100%', padding: '12px', borderRadius: '8px', fontWeight: '600', fontSize: '16px', border: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', transition: 'background 0.3s', cursor: (loading || uploadedFiles.length === 0) ? 'not-allowed' : 'pointer', backgroundColor: (loading || uploadedFiles.length === 0) ? colors.disabled : colors.primary, color: (loading || uploadedFiles.length === 0) ? colors.textSub : 'white' }}>{loading ? "生成中..." : "✨ 生成试卷"}</button>
       </div>
 
       <div style={{ background: theme === 'dark' ? '#1e293b' : '#f9fafb', padding: '20px', borderRadius: '16px', border: '1px solid ' + colors.border + '', marginBottom: '40px' }}>
@@ -2744,9 +2971,175 @@ const App = () => {
     const meta = questionMetaMap[question.id] || { id: question.id };
     
     const selectedSyllabus = syllabusPresets.find(p => p.id === selectedSyllabusId);
-    const currentAssignedBookId = meta.assignedBookId;
-    const currentAssignedTopicId = meta.assignedTopicId;
+    
+    // 获取当前题目的自动分类结果
+    const autoMapping = selectedSyllabus ? mapQuestionToSyllabus(question, selectedSyllabus, questionMetaMap) : null;
+    
+    // 使用手动分类（如果存在），否则使用自动分类
+    const currentAssignedBookId = meta.assignedBookId || autoMapping?.bookId || '';
+    const currentAssignedTopicId = meta.assignedTopicId || autoMapping?.topicId || '';
     const currentBookTopics = selectedSyllabus?.books.find(b => b.id === currentAssignedBookId)?.topics || [];
+
+    // 答题卡弹窗状态已移至组件顶层
+    
+    // 答题卡组件
+    const renderAnswerSheet = () => {
+      return (
+        <div style={{ 
+          background: colors.surface, 
+          padding: '15px', 
+          borderRadius: '12px', 
+          border: '1px solid ' + colors.border + '',
+          maxHeight: '400px',
+          overflowY: 'auto'
+        }}>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.textSub }}>📋 答题卡</h4>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', 
+            gap: '8px'
+          }}>
+            {quizData.map((q, index) => {
+              const answer = userAnswers[q.id];
+              let bgColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
+              let borderColor = colors.border;
+              let textColor = colors.textMain;
+              let badge = '';
+              
+              if (answer) {
+                if (answer.isCorrect) {
+                  bgColor = colors.successBg;
+                  borderColor = colors.successBorder;
+                  textColor = colors.successText;
+                  badge = '✓';
+                } else {
+                  bgColor = colors.errorBg;
+                  borderColor = colors.errorBorder;
+                  textColor = colors.errorText;
+                  badge = '✕';
+                }
+              } else if (index === currentQIndex) {
+                bgColor = theme === 'dark' ? '#1e3a8a' : '#dbeafe';
+                borderColor = colors.primary;
+                textColor = theme === 'dark' ? '#bfdbfe' : '#1e40af';
+              }
+              
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => {
+                    setCurrentQIndex(index);
+                    setTempSelection([]);
+                    setShowAnswerSheetModal(false);
+                  }}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    border: '2px solid ' + borderColor + '',
+                    background: bgColor,
+                    color: textColor,
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                    position: 'relative'
+                  }}
+                >
+                  {index + 1}
+                  {badge && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '-4px',
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      color: 'white',
+                      background: answer?.isCorrect ? colors.successBorder : colors.errorBorder,
+                      borderRadius: '50%',
+                      width: '16px',
+                      height: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+    
+    // 答题卡弹窗组件
+    const renderAnswerSheetModal = () => {
+      if (!showAnswerSheetModal) return null;
+      
+      return (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: colors.surface,
+            borderRadius: '16px',
+            padding: '20px',
+            maxWidth: '600px',
+            width: '100%',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+            border: '1px solid ' + colors.border + ''
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', color: colors.textMain }}>📋 题目切换</h3>
+              <button
+                onClick={() => setShowAnswerSheetModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  color: colors.textSub,
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            {renderAnswerSheet()}
+            <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowAnswerSheetModal(false)}
+                style={{
+                  background: colors.primary,
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
 
     // Jump to Question State (moved to App component level)
 
@@ -2787,6 +3180,29 @@ const App = () => {
           <div style={{ height: '100%', width: '' + ((currentQIndex + 1) / quizData.length) * 100 + '%', background: colors.primary, borderRadius: '3px', transition: 'width 0.3s' }} />
         </div>
 
+        {/* 答题卡按钮 */}
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            onClick={() => setShowAnswerSheetModal(true)}
+            style={{
+              background: colors.primary,
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            📋 切换题目 ({currentQIndex + 1} / {quizData.length})
+          </button>
+        </div>
+
+        {/* 渲染答题卡弹窗 */}
+        {renderAnswerSheetModal()}
         <div style={{ background: colors.surface, padding: '30px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid ' + colors.border + '' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -2804,7 +3220,7 @@ const App = () => {
               let bgColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
               let textColor = colors.textMain;
               let borderColor = 'transparent';
-              let badge = opt.id; 
+              let badge = letter; // 显示字母而不是选项ID
               let badgeBg = 'rgba(0,0,0,0.1)';
               let badgeColor = colors.textMain;
 
@@ -2881,10 +3297,10 @@ const App = () => {
                        const renderNestedTopics = (topic: SyllabusTopic, level: number = 0) => {
                            const indent = '  '.repeat(level);
                            return (
-                               <>
-                                   <option key={topic.id} value={topic.id}>{indent}{topic.title}</option>
+                               <React.Fragment key={topic.id}>
+                                   <option value={topic.id}>{indent}{topic.title}</option>
                                    {topic.topics?.map((subTopic) => renderNestedTopics(subTopic, level + 1))}
-                               </>
+                               </React.Fragment>
                            );
                        };
                        return renderNestedTopics(t);
@@ -2992,19 +3408,10 @@ const App = () => {
 
         {(quizSettings.showNavButtons || isReview) && (
           <div className="quiz-nav-bar">
-            {/* New Jump to Question Input */}
+            {/* 答题时间显示 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: 'auto' }}>
-                <span style={{ fontSize: '12px', color: colors.textSub }}>跳转:</span>
-                <input 
-                    type="number" 
-                    value={jumpInput} 
-                    onChange={(e) => { setJumpInput(e.target.value); setJumpError(''); }}
-                    onKeyDown={(e) => { if(e.key === 'Enter') handleJumpToQuestion(); }}
-                    placeholder="#"
-                    style={{ width: '50px', padding: '4px', borderRadius: '4px', border: '1px solid ' + jumpError ? '#ef4444' : colors.border + '', fontSize: '12px', background: colors.inputBg, color: colors.textMain }}
-                />
-                <button onClick={handleJumpToQuestion} style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid ' + colors.border + '', background: colors.surface, color: colors.textMain, cursor: 'pointer', fontSize: '12px' }}>Go</button>
-                {jumpError && <span style={{ fontSize: '10px', color: '#ef4444' }}>{jumpError}</span>}
+                <span style={{ fontSize: '12px', color: colors.textSub }}>答题时间:</span>
+                <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.primary }}>{formatTime(quizTime)}</span>
             </div>
 
             <button disabled={currentQIndex === 0} onClick={() => { setCurrentQIndex(prev => prev - 1); setTempSelection([]); }} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: currentQIndex === 0 ? (theme === 'dark' ? '#1e293b' : '#f3f4f6') : colors.surface, color: currentQIndex === 0 ? colors.textSub : colors.textSub, cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer' }}>← 上一题</button>
@@ -3112,7 +3519,7 @@ const App = () => {
     return (
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h1 style={{ margin: 0, color: colors.textMain }}>📜 历史题库</h1>
+        <h1 style={{ margin: 0, color: colors.textMain }}>📜 题库</h1>
         <button onClick={() => setScreen('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
       </div>
       
@@ -3122,11 +3529,266 @@ const App = () => {
         <button onClick={() => setHistoryViewMode('byTag')} style={{ flex: 1, minWidth: '80px', padding: '8px', borderRadius: '6px', border: 'none', background: historyViewMode === 'byTag' ? colors.primary : 'transparent', color: historyViewMode === 'byTag' ? 'white' : colors.textSub, cursor: 'pointer', fontWeight: 'bold' }}>按标签刷题</button>
       </div>
 
+      {/* 生成新题库按钮 */}
+      {/* 上传文件生成题库功能已移除 */}
+
+      {/* 后台生成题目进度弹窗已移除，改为在按题库刷题页面显示生成卡片 */}
+
       {historyViewMode === 'byBank' ? (
         <>
-          {history.length === 0 ? <div style={{ textAlign: 'center', padding: '40px', color: colors.textSub }}>暂无历史生成记录。</div> : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              {history.map((bank) => {
+          {/* 合并按钮和选择模式 */}
+          {history.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {!isSelectMode ? (
+                  <button 
+                    onClick={() => setIsSelectMode(true)}
+                    style={{ 
+                      padding: '8px 16px', 
+                      borderRadius: '12px', 
+                      background: colors.primary, 
+                      color: 'white', 
+                      border: 'none', 
+                      cursor: 'pointer', 
+                      fontSize: '14px', 
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    选择题库
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => {
+                        setIsSelectMode(false);
+                        setSelectedBankIds([]);
+                      }}
+                      style={{ 
+                        padding: '8px 16px', 
+                        borderRadius: '12px', 
+                        background: colors.primary, 
+                        color: 'white', 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        fontSize: '14px', 
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      取消选择
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (selectedBankIds.length === history.length) {
+                          setSelectedBankIds([]);
+                        } else {
+                          setSelectedBankIds(history.map(bank => bank.id));
+                        }
+                      }}
+                      style={{ 
+                        padding: '8px 16px', 
+                        borderRadius: '12px', 
+                        background: selectedBankIds.length === history.length ? colors.inputBg : colors.primary, 
+                        color: selectedBankIds.length === history.length ? colors.textMain : 'white', 
+                        border: '1px solid ' + colors.border + '', 
+                        cursor: 'pointer', 
+                        fontSize: '14px', 
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {selectedBankIds.length === history.length ? '取消全选' : '全选'}
+                    </button>
+                    <span style={{ fontSize: '14px', color: colors.textSub }}>
+                      已选择: {selectedBankIds.length}/{history.length}
+                    </span>
+                  </>
+                )}
+              </div>
+              {selectedBankIds.length >= 2 && (
+                <button 
+                  onClick={handleMergeSelectedBanks}
+                  style={{ 
+                    padding: '8px 16px', 
+                    borderRadius: '6px', 
+                    background: colors.primary, 
+                    color: 'white', 
+                    border: 'none', 
+                    cursor: 'pointer', 
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    gap: '5px',
+                    alignItems: 'center'
+                  }}
+                >
+                  📦 合并选中题库
+                </button>
+              )}
+            </div>
+          )}
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {/* 正在生成的卡片 */}
+            {isGeneratingInBank && (
+              <div style={{ background: colors.surface, padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', border: '1px solid ' + colors.primary + '' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+                    <h3 style={{ margin: 0, color: colors.primary, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      ⏳ 正在生成题目
+                    </h3>
+                  </div>
+                  
+                  {/* 生成阶段显示 */}
+                  <div style={{ marginBottom: '15px' }}>
+                    <div style={{ fontSize: '14px', color: colors.textSub, marginBottom: '8px' }}>当前阶段：</div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {['parsing', 'callingModel', 'postProcessing'].map((stage, idx) => (
+                        <div key={stage} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {renderStepIcon(stage as any, generationStage)}
+                          <span style={{ 
+                            fontSize: '12px', 
+                            color: generationStage === stage ? colors.primary : colors.textSub,
+                            fontWeight: generationStage === stage ? 'bold' : 'normal'
+                          }}>
+                            {stage === 'parsing' ? '解析资料' : stage === 'callingModel' ? '生成题目' : '后处理'}
+                          </span>
+                          {idx < 2 && <span style={{ color: colors.border }}>→</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 批量进度显示 */}
+                  {totalBatches > 0 && (
+                    <div style={{ marginBottom: '15px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '8px' }}>
+                        <span style={{ color: colors.textMain }}>批量进度</span>
+                        <span style={{ color: colors.primary, fontWeight: 'bold' }}>
+                          {currentBatchIndex}/{totalBatches}
+                        </span>
+                      </div>
+                      <div style={{ 
+                        height: '8px', background: colors.border, borderRadius: '4px', overflow: 'hidden'
+                      }}>
+                        <div 
+                          style={{ 
+                            height: '100%', 
+                            width: `${(currentBatchIndex / totalBatches) * 100}%`, 
+                            background: colors.primary,
+                            transition: 'width 0.3s ease'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 取消按钮 */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button 
+                      onClick={() => setIsGeneratingInBank(false)}
+                      style={{ 
+                        padding: '6px 12px', 
+                        borderRadius: '6px', 
+                        background: colors.disabled, 
+                        color: colors.textMain, 
+                        border: 'none', 
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      取消生成
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* 任务队列 */}
+            {taskQueue.some(task => task.status === 'pending' || task.status === 'in_progress') && (
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px', color: colors.textMain }}>任务队列</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {taskQueue
+                    .filter(task => task.status === 'pending' || task.status === 'in_progress')
+                    .map(task => (
+                    <div 
+                      key={task.id} 
+                      style={{ 
+                        background: colors.surface, 
+                        padding: '15px', 
+                        borderRadius: '12px', 
+                        border: '1px solid ' + colors.border + '',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '20px' }}>
+                            {task.type === 'mergeBanks' ? '📦' : '⏳'}
+                          </span>
+                          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{task.title}</span>
+                        </div>
+                        <span style={{ 
+                          fontSize: '12px', 
+                          padding: '4px 8px', 
+                          borderRadius: '12px', 
+                          backgroundColor: 
+                            task.status === 'completed' ? colors.successLight : 
+                            task.status === 'in_progress' ? colors.primaryLight : 
+                            colors.textSubLight,
+                          color: 
+                            task.status === 'completed' ? colors.success : 
+                            task.status === 'in_progress' ? colors.primary : 
+                            colors.textSub
+                        }}>
+                          {task.status === 'completed' ? '已完成' : task.status === 'in_progress' ? '进行中' : '等待中'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                          <span>进度</span>
+                          <span>{task.progress}%</span>
+                        </div>
+                        <div style={{ height: '6px', background: colors.border, borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ 
+                            height: '100%', 
+                            background: task.status === 'completed' ? colors.success : colors.primary, 
+                            width: `${task.progress}%`, 
+                            transition: 'width 0.3s ease'
+                          }}></div>
+                        </div>
+                      </div>
+                      {task.result && task.type === 'mergeBanks' && (
+                        <div style={{ textAlign: 'right' }}>
+                          <button 
+                            onClick={() => {
+                              // 可以在这里添加查看合并结果的功能
+                            }}
+                            style={{ 
+                              padding: '4px 8px', 
+                              borderRadius: '4px', 
+                              background: colors.primary, 
+                              color: 'white', 
+                              border: 'none', 
+                              cursor: 'pointer', 
+                              fontSize: '12px'
+                            }}
+                          >
+                            查看结果
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {history.length === 0 && !isGeneratingInBank && (
+              <div style={{ textAlign: 'center', padding: '40px', color: colors.textSub }}>暂无历史生成记录。</div>
+            )}
+            
+            {history.map((bank) => {
                 // Calculate progress for each bank
                 const sessionKey = buildBankSessionKey(bank.id);
                 const stored = progressMap[sessionKey];
@@ -3137,7 +3799,24 @@ const App = () => {
                 const accuracy = answered > 0 ? correct / answered : null;
 
                 return (
-                <div key={bank.id} style={{ background: colors.surface, padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid ' + colors.border + '' }}>
+                <div key={bank.id} style={{ background: colors.surface, padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid ' + (isSelectMode && selectedBankIds.includes(bank.id) ? colors.primary : colors.border) + '', opacity: isSelectMode && selectedBankIds.includes(bank.id) ? 0.9 : 1 }}>
+                  {/* 选择复选框 - 仅在选择模式下显示 */}
+                  {isSelectMode && (
+                    <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedBankIds.includes(bank.id)} 
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedBankIds([...selectedBankIds, bank.id]);
+                          } else {
+                            setSelectedBankIds(selectedBankIds.filter(id => id !== bank.id));
+                          }
+                        }}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                      />
+                    </div>
+                  )}
                   <div style={{ flex: 1 }}>
                     {editingBankId === bank.id ? (
                       <div style={{ display: 'flex', gap: '8px', marginBottom: '5px' }}>
@@ -3188,9 +3867,8 @@ const App = () => {
                   </div>
                 </div>
               );
-              })}
-            </div>
-          )}
+            })}
+          </div>
         </>
       ) : historyViewMode === 'byBook' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -3251,18 +3929,17 @@ const App = () => {
                                        </div>
                                    </div>
                                </div>
+                               {/* 刷整本书按钮移到卡片标题栏 */}
+                               <button onClick={() => {
+                                    const questions = [];
+                                    Object.values(bookData.topics).forEach(t => questions.push(...t.questions));
+                                    questions.push(...bookData.otherQuestions);
+                                    startQuizWithResume({ sessionKey: buildBookSessionKey(selectedSyllabus.id, book.id), questions: prepareOrderedQuestions(questions), title: book.title });
+                               }} style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', background: colors.primary, color: 'white', border: 'none', cursor: 'pointer' }}>刷整本书</button>
                            </div>
                            
                            {isExpanded && bookData && (
                                <div style={{ padding: '10px 15px' }}>
-                                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                                       <button onClick={() => {
-                                            const questions = [];
-                                            Object.values(bookData.topics).forEach(t => questions.push(...t.questions));
-                                            questions.push(...bookData.otherQuestions);
-                                            startQuizWithResume({ sessionKey: buildBookSessionKey(selectedSyllabus.id, book.id), questions: prepareOrderedQuestions(questions), title: book.title });
-                                       }} style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '6px', background: colors.primary, color: 'white', border: 'none', cursor: 'pointer' }}>刷整本书</button>
-                                   </div>
 
                                    {/* Render Topics (Recursive) */}
                                    {(() => {
@@ -3364,7 +4041,7 @@ const App = () => {
             <div style={{ textAlign: 'center', padding: '40px', color: colors.textSub, background: colors.surface, borderRadius: '12px', border: '1px dashed ' + colors.border + '' }}>
                 <p>当前无可用考试大纲，无法进行按书本归类。</p>
                 <p style={{fontSize: '12px'}}>请先在上方「出题配置 考试大纲管理」中生成或选择一个大纲。</p>
-                {history.length > 0 && <p style={{fontSize: '12px', marginTop: '10px'}}>历史题库共有 {history.reduce((a,b) => a + b.questionCount, 0)} 道题目可用。</p>}
+                {history.length > 0 && <p style={{fontSize: '12px', marginTop: '10px'}}>题库共有 {history.reduce((a,b) => a + b.questionCount, 0)} 道题目可用。</p>}
             </div>
           )}
         </div>
