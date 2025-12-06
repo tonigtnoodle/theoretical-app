@@ -22,7 +22,8 @@ View your app in AI Studio: https://ai.studio/apps/drive/1hkvMPdmxtQHhpJnM-G-Q-J
 
 这是一个基于 Google Gemini 的历史刷题工具，可以：
 - 从 PDF/Word 试题中自动抽取题目
-- 生成单选题练习试卷
+- 生成练习试卷（选择题）
 - 记录刷题历史与正确率
 
 在线体验地址：https://llznew.netlify.app
+所有的信息均存储在用户本地，不用担心api key等隐私信息泄露
