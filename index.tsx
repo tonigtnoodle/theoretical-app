@@ -2605,7 +2605,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   };
 
   const renderHome = () => (
-    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }}>
+    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }} className="fade-in-up">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '30px' }}>
         {isEditingTitle ? (
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -2652,7 +2652,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
             <p style={{ margin: 0, fontSize: '12px', color: colors.textSub }}>已有 JSON 格式题目？直接导入练习</p>
          </div>
          <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
-            <button style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: theme === 'dark' ? '#1e293b' : 'white', color: colors.textMain, cursor: 'pointer', fontWeight: '600' }}>选择文件...</button>
+            <button style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: theme === 'dark' ? '#1e293b' : 'white', color: colors.textMain, cursor: 'pointer', fontWeight: '600' }} className="btn-touch">选择文件...</button>
             <input type="file" accept=".json" onChange={handleImportJsonQuiz} style={{ position: 'absolute', left: 0, top: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
          </div>
       </div>
@@ -2882,7 +2882,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>学习资料 (支持多选 PDF / Word / JSON)</label>
           <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block', width: '100%' }}>
-            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px dashed ' + colors.primary + '', background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', color: colors.primary, cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>📂 批量上传文件 (已选 {uploadedFiles.length})</button>
+            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px dashed ' + colors.primary + '', background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', color: colors.primary, cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} className="btn-touch">📂 批量上传文件 (已选 {uploadedFiles.length})</button>
             <input type="file" accept=".pdf,.docx,.json" multiple onChange={handleFileUpload} style={{ position: 'absolute', left: 0, top: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
           </div>
           {uploadedFiles.length > 0 && (
@@ -3203,7 +3203,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
         {/* 渲染答题卡弹窗 */}
         {renderAnswerSheetModal()}
-        <div style={{ background: colors.surface, padding: '30px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid ' + colors.border + '' }}>
+        <div style={{ background: colors.surface, padding: '30px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid ' + colors.border + '' }} className="card-touch fade-in-up">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', background: isMultiple ? (theme === 'dark' ? '#78350f' : '#fef3c7') : (theme === 'dark' ? '#1e3a8a' : '#dbeafe'), color: isMultiple ? '#fbbf24' : '#60a5fa' }}>{isMultiple ? '多选题' : '单选题'}</span>
