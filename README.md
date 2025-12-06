@@ -18,3 +18,11 @@ View your app in AI Studio: https://ai.studio/apps/drive/1hkvMPdmxtQHhpJnM-G-Q-J
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+# AI 智能刷题助手
+
+这是一个基于 Google Gemini 的历史刷题工具，可以：
+- 从 PDF/Word 试题中自动抽取题目
+- 生成单选题练习试卷
+- 记录刷题历史与正确率
+
+在线体验地址：https://llznew.netlify.app
