@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { createRoot } from "react-dom/client";
+import ReactDOM from "react-dom/client";
 
 // --- Global Types ---
 declare global {
@@ -1022,7 +1022,16 @@ async function callLLM(
 
 const ResponsiveStyles = ({ theme }: { theme: Theme }) => (
   <style>{`
-    body { background-color: ${COLORS[theme].background}; color: ${COLORS[theme].textMain}; transition: background-color 0.3s, color 0.3s; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background-color: ${COLORS[theme].background}; 
+      color: ${COLORS[theme].textMain}; 
+      transition: background-color 0.3s, color 0.3s;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
     .ai-fab {
       position: fixed; bottom: 100px; right: 30px; width: 60px; height: 60px;
       border-radius: 50%; background: ${COLORS[theme].primary}; color: white;
@@ -4171,14 +4180,67 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         <button className="ai-fab" onClick={() => setIsChatOpen(true)}>🤖</button>
       )}
       <ChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} messages={chatMessages} onSend={handleChatSend} isLoading={chatLoading} currentContext={screen === 'quiz' ? quizData[currentQIndex] : null} theme={theme} />
+      
+      {/* 首页 */}
       {screen === 'home' && renderHome()}
+      
+      {/* 刷题界面 */}
       {screen === 'quiz' && renderQuiz()}
+      
+      {/* 错题本界面 */}
       {screen === 'mistakes' && renderMistakes()}
+      
+      {/* 历史记录界面 */}
       {screen === 'history' && renderHistory()}
+      
+      {/* 考试结果界面 */}
       {screen === 'result' && renderResult()}
     </>
   );
 };
 
-const root = createRoot(document.getElementById("root")!);
-root.render(<App />);
+// Add error boundary to catch any rendering errors
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('App rendering error:', error);
+    console.error('Error info:', errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+          <h1>Something went wrong.</h1>
+          <p>{this.state.error?.message}</p>
+          <button onClick={() => window.location.reload()}>Reload App</button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Log before rendering
+console.log('Starting to render App...');
+
+// Render with error boundary
+const root = ReactDOM.createRoot(document.getElementById("root")!);
+root.render(
+  <React.StrictMode>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </React.StrictMode>
+);
+
+console.log('App rendering completed.');
