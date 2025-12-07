@@ -29,7 +29,14 @@
     </script>
     <style>
       /* Global Resets */
-      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #cbd5e1; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #cbd5e1;
+        min-height: 100vh;
+        box-sizing: border-box;
+        padding-bottom: 120px; /* 给底部多留点空间，避免被工具栏挡住 */
+      }
       * { box-sizing: border-box; }
       
       /* Markdown Styles for Chat */
@@ -230,5 +237,43 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+    <script>
+      // 阻止 iOS Safari/微信里的双指缩放
+      document.addEventListener(
+        'gesturestart',
+        function (e) {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+      document.addEventListener(
+        'gesturechange',
+        function (e) {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+      document.addEventListener(
+        'gestureend',
+        function (e) {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+
+      // 阻止双击放大
+      var lastTouchEnd = 0;
+      document.addEventListener(
+        'touchend',
+        function (e) {
+          var now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        { passive: false }
+      );
+    </script>
   </body>
 </html>

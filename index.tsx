@@ -1,6 +1,58 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import ReactDOM from "react-dom/client";
 
+// --- Global Styles --- (Added for consistent styling across devices)
+const styles = {
+  // Top AI Assistant Header
+  aiAssistantHeader: {
+    display: "flex" as const,
+    alignItems: "center" as const,
+    gap: 8,
+    marginBottom: 16,
+  },
+
+  // Small circular avatar next to the title
+  aiAssistantAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 9999,
+    background: "#1f2937",
+    display: "flex" as const,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    fontSize: 18,
+    color: "#e5e7eb",
+    flexShrink: 0,
+  },
+
+  // Title text for AI Assistant
+  aiAssistantTitle: {
+    fontSize: 18,
+    fontWeight: 600,
+    color: "#e5e7eb",
+  },
+
+  // Floating Action Button (AI Assistant Entry)
+  aiAssistantFab: {
+    width: 56,
+    height: 56,
+    borderRadius: 9999,
+    background: "#2563eb",
+    color: "#ffffff",
+    border: "none",
+    display: "flex" as const,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    fontSize: 24,
+    position: "fixed" as const,
+    right: 16,
+    bottom: 96,
+    boxShadow: "0 12px 30px rgba(15,23,42,0.55)",
+    cursor: "pointer",
+    zIndex: 40,
+  },
+};
+
 // --- Global Types ---
 declare global {
   interface Window {
@@ -1318,21 +1370,22 @@ const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme, chat
             userSelect: 'none'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '18px' }}>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="12" cy="12" r="5"/>
-    <line x1="12" y1="17" x2="12" y2="17"/>
-    <line x1="12" y1="7" x2="12" y2="7"/>
-    <line x1="17" y1="12" x2="17" y2="12"/>
-    <line x1="7" y1="12" x2="7" y2="12"/>
-    <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
-    <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
-    <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
-    <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
-  </svg> AI 答疑助手
-</h3>
+          <div style={styles.aiAssistantHeader}>
+            <div style={styles.aiAssistantAvatar}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="17" x2="12" y2="17"/>
+                <line x1="12" y1="7" x2="12" y2="7"/>
+                <line x1="17" y1="12" x2="17" y2="12"/>
+                <line x1="7" y1="12" x2="7" y2="12"/>
+                <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
+                <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
+                <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
+                <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
+              </svg>
+            </div>
+            <div style={styles.aiAssistantTitle}>AI 答疑助手</div>
             <button 
               onClick={() => setShowSessions(!showSessions)}
               style={{ 
@@ -1712,6 +1765,7 @@ const App = () => {
     height: number;
   } | null>(null);
 
+  // 初始化悬浮助手按钮位置
   useEffect(() => {
     // 组件挂载后计算一个初始位置：靠右下角一点
     const margin = 16;   // 距离右边的最小间距
@@ -1724,71 +1778,96 @@ const App = () => {
     setAssistantPos({ x: Math.max(margin, x), y: Math.max(margin, y) });
   }, []);
 
-  // 工具函数：限制在 [min, max] 范围内
-  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+// 工具函数：限制在 [min, max] 范围内
+const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
-  // 按下：开始拖动
-  const handleAssistantPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!assistantPos) return;
+// 按下：开始拖动
+const handleAssistantPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+  if (!assistantPos) return;
 
-    e.preventDefault();
-    e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-    const rect = e.currentTarget.getBoundingClientRect();
+  const rect = e.currentTarget.getBoundingClientRect();
 
-    assistantDragRef.current = {
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      startPosX: rect.left,
-      startPosY: rect.top,
-      width: rect.width,
-      height: rect.height,
-    };
-
-    // 捕获后续的 move / up 事件（对触摸很重要）
-    e.currentTarget.setPointerCapture(e.pointerId);
+  assistantDragRef.current = {
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    startPosX: rect.left,
+    startPosY: rect.top,
+    width: rect.width,
+    height: rect.height,
   };
 
-  // 移动：更新位置
-  const handleAssistantPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    const drag = assistantDragRef.current;
-    if (!drag || drag.pointerId !== e.pointerId) return;
+  // 捕获后续的 move / up 事件（对触摸很重要）
+  e.currentTarget.setPointerCapture(e.pointerId);
+};
 
-    const dx = e.clientX - drag.startX;
-    const dy = e.clientY - drag.startY;
+// 移动：更新位置
+const handleAssistantPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+  const drag = assistantDragRef.current;
+  if (!drag || drag.pointerId !== e.pointerId) return;
 
-    const margin = 8;
-    const maxX = window.innerWidth - drag.width - margin;
-    const maxY = window.innerHeight - drag.height - margin;
+  const dx = e.clientX - drag.startX;
+  const dy = e.clientY - drag.startY;
 
-    setAssistantPos({
-      x: clamp(drag.startPosX + dx, margin, maxX),
-      y: clamp(drag.startPosY + dy, margin, maxY),
-    });
-  };
+  const margin = 8;
+  const maxX = window.innerWidth - drag.width - margin;
+  const maxY = window.innerHeight - drag.height - margin;
 
-  // 抬起：结束拖动，如果位移很小就当成点击
-  const handleAssistantPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-    const drag = assistantDragRef.current;
-    if (!drag || drag.pointerId !== e.pointerId) return;
+  setAssistantPos({
+    x: clamp(drag.startPosX + dx, margin, maxX),
+    y: clamp(drag.startPosY + dy, margin, maxY),
+  });
+};
 
-    const dx = e.clientX - drag.startX;
-    const dy = e.clientY - drag.startY;
-    const distance = Math.hypot(dx, dy);
+// 自动吸附到边栏
+const snapToSidebar = (x: number, width: number) => {
+  const screenWidth = window.innerWidth;
+  const margin = 16;
+  const leftThreshold = screenWidth * 0.3;
+  const rightThreshold = screenWidth * 0.7;
+  
+  if (x < leftThreshold) {
+    return margin;
+  } else if (x > rightThreshold) {
+    return screenWidth - width - margin;
+  }
+  return x;
+};
 
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
+// 抬起：结束拖动，如果位移很小就当成点击
+const handleAssistantPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+  const drag = assistantDragRef.current;
+  if (!drag || drag.pointerId !== e.pointerId) return;
 
-    assistantDragRef.current = null;
+  const dx = e.clientX - drag.startX;
+  const dy = e.clientY - drag.startY;
+  const distance = Math.hypot(dx, dy);
 
-    // 位移很小 → 当成点击
-    if (distance < 6) {
-      // 这里调用控制“打开/关闭AI助手面板”的函数
-      setIsChatOpen(!isChatOpen);
-    }
-  };
+  try {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  } catch {}
+
+  const finalX = snapToSidebar(drag.startPosX + dx, drag.width);
+  const margin = 8;
+  const maxX = window.innerWidth - drag.width - margin;
+  const maxY = window.innerHeight - drag.height - margin;
+  
+  // 更新位置并应用吸附效果
+  setAssistantPos({
+    x: clamp(finalX, margin, maxX),
+    y: clamp(drag.startPosY + dy, margin, maxY),
+  });
+  
+  assistantDragRef.current = null;
+
+  // 位移很小 → 当成点击
+  if (distance < 6) {
+    setIsChatOpen(!isChatOpen);
+  }
+};
 
 // 控制背景滚动
 useEffect(() => {
@@ -5075,24 +5154,24 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         </div>
       )}
 
-      {/* AI 入口按钮 - 可拖动版本 */}
+      {/* AI 入口按钮 - 支持拖动和自动吸附 */}
       {assistantPos && (
         <button
           className="ai-fab"
           style={{
+            ...styles.aiAssistantFab,
             position: "fixed",
             left: assistantPos.x,
             top: assistantPos.y,
             zIndex: 50,
-            touchAction: "none", // ⚠️ 关键：允许手指拖动，不让浏览器把它当成滚动
-            transition: 'all 0.3s ease' // 平滑过渡
+            transform: "translateZ(0)", // 提升渲染层级，防止被其他元素遮挡
           }}
           onPointerDown={handleAssistantPointerDown}
           onPointerMove={handleAssistantPointerMove}
           onPointerUp={handleAssistantPointerUp}
           onPointerCancel={handleAssistantPointerUp}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <circle cx="12" cy="12" r="5"/>
             <line x1="12" y1="17" x2="12" y2="17"/>
@@ -5122,7 +5201,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     />
       
       {/* 页面容器 - 添加页面切换动画 */}
-      <div style={{ position: 'relative', width: '100%', minHeight: '100vh', maxWidth: window.innerWidth < 768 ? '100%' : '800px', margin: '0 auto', padding: '20px 0' }}>
+      <div style={{ position: 'relative', width: '100%', minHeight: '100vh', maxWidth: window.innerWidth < 768 ? '100%' : '800px', margin: '0 auto', padding: '20px 0 120px', boxSizing: 'border-box' }}>
         {/* 首页 */}
         {screen === 'home' && (
           <div key="home" style={{ 
