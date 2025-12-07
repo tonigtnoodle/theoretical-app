@@ -3280,22 +3280,22 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
   const renderHome = () => (
     <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }} className="fade-in-up">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '30px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '30px' }}>
         {isEditingTitle ? (
-             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: 'calc(100% - 40px)' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input 
                   value={pendingTitle} 
                   onChange={(e) => setPendingTitle(e.target.value)}
-                  style={{ fontSize: '24px', fontWeight: '800', padding: '4px', borderRadius: '4px', border: '1px solid ' + colors.primary + '', background: '#ffffff', color: '#1e293b', width: '300px', maxWidth: '100%' }}
+                  style={{ fontSize: '24px', fontWeight: '800', padding: '4px', borderRadius: '4px', border: '1px solid ' + colors.primary + '', background: '#ffffff', color: '#1e293b', width: '300px' }}
                   autoFocus
                 />
                 <button onClick={handleSaveAppTitle} style={{ padding: '4px 8px', background: colors.successBg, color: colors.successText, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>保存</button>
                 <button onClick={() => setIsEditingTitle(false)} style={{ padding: '4px 8px', background: colors.disabled, color: colors.textSub, border: 'none', borderRadius: '4px', cursor: 'pointer' }}>取消</button>
              </div>
         ) : (
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: 'calc(100% - 40px)' }}>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
               {/* 使用SVG实现文字渐变 */}
-              <svg width="auto" height="30" viewBox="0 0 400 30" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible', maxWidth: '100%' }}>
+              <svg width="auto" height="30" viewBox="0 0 400 30" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible' }}>
                 <defs>
                   <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     {theme === 'dark' ? (
@@ -3316,10 +3316,10 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                 </text>
               </svg>
               <button onClick={handleRenameAppTitle} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px', color: colors.textSub }} title="修改标题">✎</button>
-              <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>{APP_VERSION}</span>
+              <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', verticalAlign: 'middle' }}>{APP_VERSION}</span>
             </h1>
         )}
-        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub, flexShrink: 0, marginLeft: '8px' }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
+        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
