@@ -1129,6 +1129,28 @@ const ResponsiveStyles = ({ theme }: { theme: Theme }) => (
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
+    
+    /* Quiz option styles */
+    .quiz-option {
+      transition: all 0.3s ease, transform 0.3s ease !important;
+    }
+    
+    .quiz-option:hover:not(:disabled) {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* Mobile optimization for quiz options */
+    @media (max-width: 480px) {
+      .quiz-option {
+        padding: 15px !important;
+        font-size: 14px !important;
+      }
+      
+      .quiz-question-card {
+        padding: 20px !important;
+      }
+    }
     /* Enhanced card styles for better visibility in light mode */
     ${theme === 'light' ? `
       .card-touch {
@@ -3258,22 +3280,22 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
   const renderHome = () => (
     <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }} className="fade-in-up">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '30px', flexWrap: 'wrap' }}>
         {isEditingTitle ? (
-             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: 'calc(100% - 40px)' }}>
                 <input 
                   value={pendingTitle} 
                   onChange={(e) => setPendingTitle(e.target.value)}
-                  style={{ fontSize: '24px', fontWeight: '800', padding: '4px', borderRadius: '4px', border: '1px solid ' + colors.primary + '', background: '#ffffff', color: '#1e293b', width: '300px' }}
+                  style={{ fontSize: '24px', fontWeight: '800', padding: '4px', borderRadius: '4px', border: '1px solid ' + colors.primary + '', background: '#ffffff', color: '#1e293b', width: '300px', maxWidth: '100%' }}
                   autoFocus
                 />
                 <button onClick={handleSaveAppTitle} style={{ padding: '4px 8px', background: colors.successBg, color: colors.successText, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>保存</button>
                 <button onClick={() => setIsEditingTitle(false)} style={{ padding: '4px 8px', background: colors.disabled, color: colors.textSub, border: 'none', borderRadius: '4px', cursor: 'pointer' }}>取消</button>
              </div>
         ) : (
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: 'calc(100% - 40px)' }}>
               {/* 使用SVG实现文字渐变 */}
-              <svg width="auto" height="30" viewBox="0 0 400 30" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible' }}>
+              <svg width="auto" height="30" viewBox="0 0 400 30" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible', maxWidth: '100%' }}>
                 <defs>
                   <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     {theme === 'dark' ? (
@@ -3294,10 +3316,10 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                 </text>
               </svg>
               <button onClick={handleRenameAppTitle} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px', color: colors.textSub }} title="修改标题">✎</button>
-              <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', verticalAlign: 'middle' }}>{APP_VERSION}</span>
+              <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>{APP_VERSION}</span>
             </h1>
         )}
-        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
+        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub, flexShrink: 0, marginLeft: '8px' }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
@@ -3978,17 +4000,8 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           
           <h2 style={{ marginTop: 0, fontSize: '20px', lineHeight: '1.6', color: colors.textMain }}>{question.stem}</h2>
           
-          {/* 选项区域带导航按钮 */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '16px', marginTop: '20px' }}>
-            {/* 上一题按钮 - 左侧 */}
-            {(quizSettings.showNavButtons || isReview) && (
-              <button disabled={currentQIndex === 0} onClick={() => { setCurrentQIndex(prev => prev - 1); setTempSelection([]); }} style={{ padding: '4px 8px', border: 'none', background: 'transparent', color: currentQIndex === 0 ? colors.textSub : '#eab308', cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
-                <span>←</span> 上一题
-              </button>
-            )}
-            
-            {/* 选项列表 */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* 选项列表 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {question.options.map((opt, idx) => {
                 const letter = indexToLetter(idx); // Use visual index for consistency if ID logic differs
                 let bgColor = theme === 'dark' ? '#334155' : '#e2e8f0';
@@ -4021,22 +4034,29 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                 }
 
                 return (
-                  <button key={opt.id} onClick={() => handleSelectOption(opt.id)} disabled={isAnswered || isReview} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '16px', background: bgColor, color: textColor, border: '2px solid ' + borderColor + '', borderRadius: '12px', cursor: (isAnswered || isReview) ? 'default' : 'pointer', fontSize: '16px', textAlign: 'left', transition: 'all 0.2s', opacity: isReview && !isCorrectOption ? 0.6 : 1 }} className="quiz-option">
-                    <span style={{ width: '28px', height: '28px', borderRadius: isMultiple ? '4px' : '50%', background: badgeBg, color: badgeColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: badge }}></span>
+                  <button key={opt.id} onClick={() => handleSelectOption(opt.id)} disabled={isAnswered || isReview} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '20px', background: bgColor, color: textColor, border: '2px solid ' + borderColor + '', borderRadius: '16px', cursor: (isAnswered || isReview) ? 'default' : 'pointer', fontSize: '16px', textAlign: 'left', transition: 'all 0.3s ease, transform 0.3s ease', opacity: isReview && !isCorrectOption ? 0.6 : 1, transform: 'translateY(0)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} className="quiz-option hover:translate-y-[-2px]">
+                    <span style={{ width: '32px', height: '32px', borderRadius: '8px', background: badgeBg, color: badgeColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }} dangerouslySetInnerHTML={{ __html: badge }}></span>
                     <span>{opt.text}</span>
                   </button>
                 );
               })}
             </div>
             
-            {/* 下一题按钮 - 右侧 */}
+            {/* 导航按钮 - 题目选项下方 */}
             {(quizSettings.showNavButtons || isReview) && (
-              <button onClick={() => { if (isLastQuestion) finishQuiz(); else { setCurrentQIndex(prev => prev + 1); setTempSelection([]); } }} style={{ padding: '4px 8px', border: 'none', background: 'transparent', color: '#eab308', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
-                {isLastQuestion ? (isReview ? "结束背题" : "📈 查看结果") : "下一题"}
-                <span>→</span>
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
+                {/* 上一题按钮 */}
+                <button disabled={currentQIndex === 0} onClick={() => { setCurrentQIndex(prev => prev - 1); setTempSelection([]); }} style={{ padding: '12px 20px', border: 'none', background: currentQIndex === 0 ? '#cbd5e1' : '#eab308', color: currentQIndex === 0 ? '#94a3b8' : '#111827', cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '16px', transition: 'all 0.3s ease, transform 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                  <span>←</span> 上一题
+                </button>
+                
+                {/* 下一题按钮 */}
+                <button onClick={() => { if (isLastQuestion) finishQuiz(); else { setCurrentQIndex(prev => prev + 1); setTempSelection([]); } }} style={{ padding: '12px 20px', border: 'none', background: '#eab308', color: '#111827', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '16px', transition: 'all 0.3s ease, transform 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                  {isLastQuestion ? (isReview ? "结束背题" : "📈 查看结果") : "下一题"}
+                  <span>→</span>
+                </button>
+              </div>
             )}
-          </div>
           {!isReview && !isAnswered && ((isMultiple || quizSettings.confirmSubmit) && tempSelection.length > 0 && (
             <button onClick={() => submitAnswer(tempSelection)} style={{ width: '100%', marginTop: '20px', padding: '14px', background: colors.primary, color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>{isMultiple ? `确认提交 (已选 ${tempSelection.length} 项)` : "确认提交"}</button>
           ))}
