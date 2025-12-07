@@ -1349,6 +1349,33 @@ const App = () => {
   });
   
   const [screen, setScreen] = useState<'home' | 'quiz' | 'result' | 'mistakes' | 'history'>('home');
+  const [transitionDirection, setTransitionDirection] = useState<'left' | 'right' | 'none'>('none');
+  
+  // 页面导航函数
+  const navigateTo = (newScreen: typeof screen) => {
+    // 确定切换方向
+    const screenOrder = ['home', 'history', 'quiz', 'result', 'mistakes'];
+    const currentIndex = screenOrder.indexOf(screen);
+    const newIndex = screenOrder.indexOf(newScreen);
+    
+    // 设置过渡方向
+    if (currentIndex < newIndex) {
+      setTransitionDirection('right');
+    } else if (currentIndex > newIndex) {
+      setTransitionDirection('left');
+    } else {
+      setTransitionDirection('none');
+    }
+    
+    // 触发重新渲染
+    setTimeout(() => {
+      setScreen(newScreen);
+      // 重置过渡方向
+      setTimeout(() => {
+        setTransitionDirection('none');
+      }, 300);
+    }, 10);
+  };
   const [uploadedFiles, setUploadedFiles] = useState<{name: string, content: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [generationStage, setGenerationStage] = useState<GenerationStage>('idle');
@@ -1616,7 +1643,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
       setCurrentQIndex(args.initialIndex);
       setUserAnswers(args.restoredAnswers || {});
       setTempSelection([]);
-      setScreen('quiz');
+      navigateTo('quiz');
       setConfirmClearProgress(false);
       setQuizTime(0); // 重置答题时间
   };
@@ -2574,7 +2601,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     startQuizWithResume({ sessionKey: `tag:${tagName}`, questions, title: tagName });
   };
 
-  const finishQuiz = () => setScreen('result');
+  const finishQuiz = () => navigateTo('result');
 
   const handleChatSend = async (userMsg: string) => {
     setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
@@ -2640,38 +2667,38 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-        <button onClick={() => setScreen('mistakes')} style={{ padding: '20px', borderRadius: '12px', border: 'none', background: theme === 'dark' ? '#7f1d1d' : '#fee2e2', color: theme === 'dark' ? '#fecaca' : '#991b1b', cursor: 'pointer', textAlign: 'left' }}>
+        <button onClick={() => navigateTo('mistakes')} className="floating-btn ios26-card" style={{ padding: '20px', border: 'none', background: theme === 'dark' ? '#7f1d1d' : '#fee2e2', color: theme === 'dark' ? '#fecaca' : '#991b1b', cursor: 'pointer', textAlign: 'left' }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{mistakes.length}</div>
           <div style={{ fontSize: '14px' }}>错题待复习</div>
         </button>
-        <button onClick={() => setScreen('history')} style={{ padding: '20px', borderRadius: '12px', border: 'none', background: theme === 'dark' ? '#1e3a8a' : '#dbeafe', color: theme === 'dark' ? '#bfdbfe' : '#1e40af', cursor: 'pointer', textAlign: 'left' }}>
+        <button onClick={() => navigateTo('history')} className="floating-btn ios26-card" style={{ padding: '20px', border: 'none', background: theme === 'dark' ? '#1e3a8a' : '#dbeafe', color: theme === 'dark' ? '#bfdbfe' : '#1e40af', cursor: 'pointer', textAlign: 'left' }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{history.length}</div>
           <div style={{ fontSize: '14px' }}>题库</div>
         </button>
       </div>
 
-      <div style={{ marginBottom: '30px' }}>
-        <button onClick={startFavoritePractice} style={{ width: '100%', padding: '20px', borderRadius: '12px', border: 'none', background: theme === 'dark' ? '#713f12' : '#fef9c3', color: theme === 'dark' ? '#fef08a' : '#854d0e', cursor: 'pointer', textAlign: 'left' }}>
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={startFavoritePractice} className="floating-btn ios26-card" style={{ width: '100%', padding: '22px', border: 'none', background: theme === 'dark' ? '#713f12' : '#fef9c3', color: theme === 'dark' ? '#fef08a' : '#854d0e', cursor: 'pointer', textAlign: 'left' }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{favorites.length}</div>
           <div style={{ fontSize: '14px' }}>收藏题库 (开始刷题)</div>
         </button>
       </div>
 
-      <div style={{ background: colors.surface, padding: '20px', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid ' + colors.border + '', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="ios26-card" style={{ padding: '22px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
          <div>
             <h3 style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold', color: colors.textMain }}>📥 导入现成题库 (JSON)</h3>
             <p style={{ margin: 0, fontSize: '12px', color: colors.textSub }}>已有 JSON 格式题目？直接导入练习</p>
          </div>
          <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
-            <button style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: theme === 'dark' ? '#1e293b' : 'white', color: colors.textMain, cursor: 'pointer', fontWeight: '600' }} className="btn-touch">选择文件...</button>
+            <button className="ios26-btn btn-touch" style={{ padding: '10px 20px', border: 'none', color: colors.textMain, cursor: 'pointer', fontWeight: '600' }}>选择文件...</button>
             <input type="file" accept=".json" onChange={handleImportJsonQuiz} style={{ position: 'absolute', left: 0, top: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
          </div>
       </div>
 
-      <div style={{ background: colors.surface, padding: '25px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid ' + colors.border + '' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '20px', color: colors.textMain }}>⚙️ 出题配置</h3>
+      <div className="ios26-card" style={{ padding: '25px', marginBottom: '20px' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '20px', color: colors.textMain, fontSize: '18px', fontWeight: '700' }}>⚙️ 出题配置</h3>
         
-        <div style={{ marginBottom: '20px', padding: '15px', background: theme === 'dark' ? '#1e293b' : '#f1f5f9', borderRadius: '12px', border: '1px dashed ' + colors.border + '' }}>
+        <div style={{ marginBottom: '20px', padding: '18px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.1)' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: colors.textSub }}>API 预设 (本地)</h4>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
              <select 
@@ -2680,7 +2707,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                  if (id) handleApplyApiPreset(id);
                }} 
                value="" 
-               style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, fontSize: '13px' }}
+               style={{ flex: 1, padding: '10px 14px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '14px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
              >
                <option value="" disabled>-- 选择已保存的配置 --</option>
                {apiPresets.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -2688,16 +2715,15 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
              <button 
                type="button"
                onClick={handleSaveCurrentApiPreset} 
+               className="ios26-btn"
                style={{ 
-                 padding: '8px 12px', 
-                 borderRadius: '6px', 
+                 padding: '10px 18px', 
                  background: colors.primary, 
                  color: 'white', 
                  border: 'none', 
                  cursor: 'pointer', 
-                 fontSize: '12px',
-                 fontWeight: '600',
-                 boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                 fontSize: '14px',
+                 fontWeight: '600'
                }}
                title="点击保存当前配置"
              >
@@ -2731,44 +2757,44 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           )}
         </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>模型预设</label>
-          <select value={apiConfig.preset || 'custom'} onChange={(e) => handlePresetChange(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }}>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>模型预设</label>
+          <select value={apiConfig.preset || 'custom'} onChange={(e) => handlePresetChange(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
             {MODEL_PRESETS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
           </select>
         </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>接口协议类型</label>
-          <select value={apiConfig.protocol} onChange={(e) => setApiConfig({...apiConfig, protocol: e.target.value as any})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }}>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>接口协议类型</label>
+          <select value={apiConfig.protocol} onChange={(e) => setApiConfig({...apiConfig, protocol: e.target.value as any})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
             <option value="openai-compatible">OpenAI 兼容接口</option>
             <option value="gemini-native">Google Gemini 原生接口</option>
           </select>
         </div>
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
           <div style={{ flex: 1 }}>
-             <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>Base URL</label>
-             <input type="text" value={apiConfig.baseUrl} placeholder={apiConfig.protocol === 'gemini-native' ? "https://generativelanguage.googleapis.com" : "https://api.example.com"} onChange={(e) => setApiConfig({...apiConfig, baseUrl: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }} />
+             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>Base URL</label>
+             <input type="text" value={apiConfig.baseUrl} placeholder={apiConfig.protocol === 'gemini-native' ? "https://generativelanguage.googleapis.com" : "https://api.example.com"} onChange={(e) => setApiConfig({...apiConfig, baseUrl: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
           </div>
           <div style={{ flex: 1 }}>
-             <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>模型名称</label>
-             <input type="text" value={apiConfig.model} placeholder={apiConfig.protocol === 'gemini-native' ? "Google AI Studio 模型 ID" : "模型名称 (如 gpt-4o)"} onChange={(e) => setApiConfig({...apiConfig, model: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }} />
+             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>模型名称</label>
+             <input type="text" value={apiConfig.model} placeholder={apiConfig.protocol === 'gemini-native' ? "Google AI Studio 模型 ID" : "模型名称 (如 gpt-4o)"} onChange={(e) => setApiConfig({...apiConfig, model: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
           </div>
         </div>
         {apiConfig.protocol === 'openai-compatible' && (
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>自定义接口路径</label>
-            <input type="text" value={apiConfig.customPath} onChange={(e) => setApiConfig({...apiConfig, customPath: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }} />
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>自定义接口路径</label>
+            <input type="text" value={apiConfig.customPath} onChange={(e) => setApiConfig({...apiConfig, customPath: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
           </div>
         )}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>API Key</label>
-          <input type="password" value={apiConfig.apiKey} onChange={(e) => setApiConfig({...apiConfig, apiKey: e.target.value})} placeholder="sk-..." style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain }} />
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>API Key</label>
+          <input type="password" value={apiConfig.apiKey} onChange={(e) => setApiConfig({...apiConfig, apiKey: e.target.value})} placeholder="sk-..." style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
         </div>
 
         {/* NEW: Syllabus Context Selection */}
-        <div style={{ marginBottom: '20px', padding: '15px', background: theme === 'dark' ? 'rgba(16, 185, 129, 0.1)' : '#ecfdf5', borderRadius: '12px', border: '1px dashed ' + colors.successBorder + '' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: theme === 'dark' ? '#34d399' : '#059669' }}>📝 生成题目归属 (可选)</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ marginBottom: '20px', padding: '18px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '16px', border: '1px dashed rgba(52, 211, 153, 0.3)' }}>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#34d399', fontWeight: '600' }}>📝 生成题目归属 (可选)</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <select
                     value={genSyllabusId || ''}
                     onChange={(e) => {
@@ -2776,21 +2802,21 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                         setGenBookId(null);
                         setGenTopicId(null);
                     }}
-                    style={{ padding: '8px', borderRadius: '6px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, fontSize: '13px' }}
+                    style={{ padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '14px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
                 >
                     <option value="">-- 不指定大纲 --</option>
                     {syllabusPresets.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
 
                 {genSyllabusId && (
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '12px' }}>
                          <select
                             value={genBookId || ''}
                             onChange={(e) => {
                                 setGenBookId(e.target.value || null);
                                 setGenTopicId(null);
                             }}
-                            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, fontSize: '13px' }}
+                            style={{ flex: 1, padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '13px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
                         >
                             <option value="">-- 选择书本 --</option>
                             {syllabusPresets.find(p => p.id === genSyllabusId)?.books.map(b => (
@@ -2801,7 +2827,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                             value={genTopicId || ''}
                             onChange={(e) => setGenTopicId(e.target.value || null)}
                             disabled={!genBookId}
-                            style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, fontSize: '13px', opacity: genBookId ? 1 : 0.6 }}
+                            style={{ flex: 1, padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '13px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', opacity: genBookId ? 1 : 0.6 }}
                         >
                             <option value="">-- 选择章节/模块 --</option>
                             {genBookId && syllabusPresets.find(p => p.id === genSyllabusId)?.books.find(b => b.id === genBookId)?.topics.map((t) => {
@@ -2823,8 +2849,8 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
             </div>
         </div>
 
-        <div style={{ marginBottom: '20px', padding: '15px', background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', borderRadius: '12px', border: '1px dashed ' + colors.primary + '' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: colors.primary }}>📚 考试大纲管理</h4>
+        <div style={{ marginBottom: '20px', padding: '18px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '16px', border: '1px dashed rgba(96, 165, 250, 0.3)' }}>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.primary, fontWeight: '600' }}>📚 考试大纲管理</h4>
             
             {/* New: Custom Name Input */}
             <input
@@ -2832,28 +2858,28 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                 placeholder="在此输入新大纲名称（可选，如：2025 工艺美术史）"
                 value={newSyllabusName}
                 onChange={(e) => setNewSyllabusName(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, fontSize: '13px', marginBottom: '8px' }}
+                style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '14px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', marginBottom: '12px' }}
             />
 
             <textarea
                 value={syllabusRawText}
                 onChange={(e) => setSyllabusRawText(e.target.value)}
                 placeholder="在此粘贴考试院校发布的考试大纲文本（需包含书名和章节标题），AI 将自动解析生成预设..."
-                style={{ width: '100%', height: '80px', padding: '8px', borderRadius: '6px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, fontSize: '12px', marginBottom: '8px' }}
+                style={{ width: '100%', height: '90px', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '14px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', marginBottom: '12px' }}
             />
             <button 
                 onClick={handleGenerateSyllabusPresetFromText} 
                 disabled={isProcessingSyllabus || !syllabusRawText.trim()}
+                className="ios26-btn"
                 style={{ 
                     width: '100%', 
-                    padding: '8px', 
-                    borderRadius: '6px', 
+                    padding: '12px', 
                     background: isProcessingSyllabus ? colors.disabled : colors.primary, 
                     color: 'white', 
                     border: 'none', 
                     cursor: isProcessingSyllabus ? 'not-allowed' : 'pointer', 
-                    fontSize: '12px',
-                    fontWeight: 'bold'
+                    fontSize: '14px',
+                    fontWeight: '600'
                 }}
             >
                 {isProcessingSyllabus ? "正在解析大纲..." : "✨ 从文本生成大纲预设"}
@@ -2861,9 +2887,9 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
             {/* List for Renaming Syllabus Presets */}
             {syllabusPresets.length > 0 && (
-                <div style={{ marginTop: '15px', borderTop: '1px solid ' + colors.border + '', paddingTop: '10px' }}>
-                    <h5 style={{ margin: '0 0 8px 0', fontSize: '12px', color: colors.textSub }}>已保存的大纲:</h5>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ marginTop: '18px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '12px' }}>
+                    <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', color: colors.textSub }}>已保存的大纲:</h5>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {syllabusPresets.map(p => (
                             <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', color: colors.textMain }}>
                                 {editingSyllabusId === p.id ? (
@@ -3172,7 +3198,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         {/* Progress prompt removed from here, now handled via modal before entering */}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <button onClick={() => setScreen('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px' }}>🏠</button>
+          <button onClick={() => navigateTo('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px' }}>🏠</button>
           <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.textSub }}>题目 {currentQIndex + 1} / {quizData.length}</div>
           <div style={{ display: 'flex', gap: '10px' }}>
              {!confirmClearProgress ? (
@@ -3184,7 +3210,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                      <button onClick={() => setConfirmClearProgress(false)} style={{ fontSize: '12px', padding: '2px 6px', background: colors.disabled, color: colors.textMain, border: 'none', borderRadius: '4px', cursor: 'pointer' }}>否</button>
                  </div>
              )}
-             <button onClick={() => setScreen('result')} style={{ color: colors.primary, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600' }}>{isReview ? "结束背题" : (isPractice ? "结束练习" : "交卷")}</button>
+             <button onClick={() => navigateTo('result')} style={{ color: colors.primary, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600' }}>{isReview ? "结束背题" : (isPractice ? "结束练习" : "交卷")}</button>
           </div>
         </div>
         <div style={{ height: '6px', background: theme === 'dark' ? '#334155' : '#e2e8f0', borderRadius: '3px', marginBottom: '30px' }}>
@@ -3440,7 +3466,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h1 style={{ margin: 0, color: colors.textMain }}>📕 错题本</h1>
-        <button onClick={() => setScreen('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
+        <button onClick={() => navigateTo('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
       </div>
 
       <div style={{ display: 'flex', marginBottom: '20px', background: colors.surface, borderRadius: '8px', padding: '4px', border: '1px solid ' + colors.border + '' }}>
@@ -3534,7 +3560,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h1 style={{ margin: 0, color: colors.textMain }}>📜 题库</h1>
-        <button onClick={() => setScreen('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
+        <button onClick={() => navigateTo('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
       </div>
       
       <div style={{ display: 'flex', marginBottom: '20px', background: colors.surface, borderRadius: '8px', padding: '4px', border: '1px solid ' + colors.border + '', overflowX: 'auto' }}>
@@ -4090,8 +4116,8 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           <p style={{ color: colors.textSub }}>答对 {correctCount} / {quizData.length} 题</p>
         </div>
         <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-          <button onClick={() => setScreen('home')} style={{ padding: '12px 24px', borderRadius: '10px', background: theme === 'dark' ? '#334155' : '#f3f4f6', color: colors.textMain, border: 'none', fontSize: '16px', cursor: 'pointer' }}>返回首页</button>
-          <button onClick={() => setScreen('mistakes')} style={{ padding: '12px 24px', borderRadius: '10px', background: theme === 'dark' ? '#7f1d1d' : '#fee2e2', color: theme === 'dark' ? '#fecaca' : '#991b1b', border: 'none', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}>查看错题</button>
+          <button onClick={() => navigateTo('home')} style={{ padding: '12px 24px', borderRadius: '10px', background: theme === 'dark' ? '#334155' : '#f3f4f6', color: colors.textMain, border: 'none', fontSize: '16px', cursor: 'pointer' }}>返回首页</button>
+          <button onClick={() => navigateTo('mistakes')} style={{ padding: '12px 24px', borderRadius: '10px', background: theme === 'dark' ? '#7f1d1d' : '#fee2e2', color: theme === 'dark' ? '#fecaca' : '#991b1b', border: 'none', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}>查看错题</button>
         </div>
       </div>
     );
@@ -4181,20 +4207,85 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
       )}
       <ChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} messages={chatMessages} onSend={handleChatSend} isLoading={chatLoading} currentContext={screen === 'quiz' ? quizData[currentQIndex] : null} theme={theme} />
       
-      {/* 首页 */}
-      {screen === 'home' && renderHome()}
-      
-      {/* 刷题界面 */}
-      {screen === 'quiz' && renderQuiz()}
-      
-      {/* 错题本界面 */}
-      {screen === 'mistakes' && renderMistakes()}
-      
-      {/* 历史记录界面 */}
-      {screen === 'history' && renderHistory()}
-      
-      {/* 考试结果界面 */}
-      {screen === 'result' && renderResult()}
+      {/* 页面容器 - 添加页面切换动画 */}
+      <div style={{ position: 'relative', width: '100%', minHeight: '100vh', maxWidth: window.innerWidth < 768 ? '100%' : '800px', margin: '0 auto', padding: '20px 0' }}>
+        {/* 首页 */}
+        {screen === 'home' && (
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            minHeight: '100%', 
+            opacity: 1, 
+            transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: 'scale(1)',
+            zIndex: 10,
+            animation: 'fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+          }}>
+            {renderHome()}
+          </div>
+        )}
+        
+        {/* 历史记录界面 */}
+        {screen === 'history' && (
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            minHeight: '100%', 
+            opacity: 1, 
+            transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: 'scale(1)',
+            zIndex: 10,
+            animation: 'fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+          }}>
+            {renderHistory()}
+          </div>
+        )}
+        
+        {/* 刷题界面 */}
+        {screen === 'quiz' && (
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            minHeight: '100%', 
+            opacity: 1, 
+            transition: 'opacity 0.3s ease, transform 0.3s ease',
+            transform: transitionDirection === 'left' ? 'translateX(-100%)' : transitionDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
+            zIndex: 10
+          }}>
+            {renderQuiz()}
+          </div>
+        )}
+        
+        {/* 考试结果界面 */}
+        {screen === 'result' && (
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            minHeight: '100%', 
+            opacity: 1, 
+            transition: 'opacity 0.3s ease, transform 0.3s ease',
+            transform: transitionDirection === 'left' ? 'translateX(-100%)' : transitionDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
+            zIndex: 10
+          }}>
+            {renderResult()}
+          </div>
+        )}
+        
+        {/* 错题本界面 */}
+        {screen === 'mistakes' && (
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            minHeight: '100%', 
+            opacity: 1, 
+            transition: 'opacity 0.3s ease, transform 0.3s ease',
+            transform: transitionDirection === 'left' ? 'translateX(-100%)' : transitionDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
+            zIndex: 10
+          }}>
+            {renderMistakes()}
+          </div>
+        )}
+      </div>
     </>
   );
 };
