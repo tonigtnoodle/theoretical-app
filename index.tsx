@@ -1698,6 +1698,98 @@ const App = () => {
   const [isGeneratingInBank, setIsGeneratingInBank] = useState(false);
   const [showAnswerSheetModal, setShowAnswerSheetModal] = useState(false);
 
+  // 悬浮助手按钮的位置（以屏幕左上角为基准，单位 px）
+  const [assistantPos, setAssistantPos] = useState<{ x: number; y: number } | null>(null);
+
+  // 拖动过程中的临时状态
+  const assistantDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startPosX: number;
+    startPosY: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  useEffect(() => {
+    // 组件挂载后计算一个初始位置：靠右下角一点
+    const margin = 16;   // 距离右边的最小间距
+    const bottom = 96;   // 距离底部的间距
+    const size = 56;     // 按钮大约直径（和样式里差不多就行）
+
+    const x = window.innerWidth - size - margin;
+    const y = window.innerHeight - size - bottom;
+
+    setAssistantPos({ x: Math.max(margin, x), y: Math.max(margin, y) });
+  }, []);
+
+  // 工具函数：限制在 [min, max] 范围内
+  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+  // 按下：开始拖动
+  const handleAssistantPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!assistantPos) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    assistantDragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startPosX: rect.left,
+      startPosY: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
+
+    // 捕获后续的 move / up 事件（对触摸很重要）
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  // 移动：更新位置
+  const handleAssistantPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = assistantDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+
+    const margin = 8;
+    const maxX = window.innerWidth - drag.width - margin;
+    const maxY = window.innerHeight - drag.height - margin;
+
+    setAssistantPos({
+      x: clamp(drag.startPosX + dx, margin, maxX),
+      y: clamp(drag.startPosY + dy, margin, maxY),
+    });
+  };
+
+  // 抬起：结束拖动，如果位移很小就当成点击
+  const handleAssistantPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = assistantDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    const distance = Math.hypot(dx, dy);
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+
+    assistantDragRef.current = null;
+
+    // 位移很小 → 当成点击
+    if (distance < 6) {
+      // 这里调用控制“打开/关闭AI助手面板”的函数
+      setIsChatOpen(!isChatOpen);
+    }
+  };
+
 // 控制背景滚动
 useEffect(() => {
   if (showAnswerSheetModal) {
@@ -4983,51 +5075,37 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         </div>
       )}
 
-      {/* AI 入口按钮 - 可拖拽版本 */}
-      <button 
-        ref={aiButtonRef}
-        className="ai-fab"
-        onClick={(e) => {
-          // 只有当不是拖拽状态且为点击事件时才触发
-          if (!isDragging && isClick) {
-            // 点击切换聊天界面的显示/隐藏
-            setIsChatOpen(!isChatOpen);
-          }
-        }}
-        onMouseDown={handleDragStart}
-        onMouseUp={() => {
-          // 鼠标释放后，延迟标记为点击事件
-          // 如果没有发生拖拽移动，这将是一个点击事件
-          clickTimeoutRef.current = setTimeout(() => {
-            setIsClick(true);
-          }, 100);
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          position: 'fixed',
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          cursor: isDragging ? 'grabbing' : 'grab',
-          zIndex: 1000, // 确保始终在最上层
-          transform: isDragging ? 'scale(1.1)' : 'scale(1)', // 拖拽时轻微放大
-          transition: isDragging ? 'transform 0.1s' : 'all 0.3s ease' // 平滑过渡
-        }}
-      >
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="17" x2="12" y2="17"/>
-          <line x1="12" y1="7" x2="12" y2="7"/>
-          <line x1="17" y1="12" x2="17" y2="12"/>
-          <line x1="7" y1="12" x2="7" y2="12"/>
-          <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
-          <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
-          <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
-          <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
-        </svg>
-      </button>
+      {/* AI 入口按钮 - 可拖动版本 */}
+      {assistantPos && (
+        <button
+          className="ai-fab"
+          style={{
+            position: "fixed",
+            left: assistantPos.x,
+            top: assistantPos.y,
+            zIndex: 50,
+            touchAction: "none", // ⚠️ 关键：允许手指拖动，不让浏览器把它当成滚动
+            transition: 'all 0.3s ease' // 平滑过渡
+          }}
+          onPointerDown={handleAssistantPointerDown}
+          onPointerMove={handleAssistantPointerMove}
+          onPointerUp={handleAssistantPointerUp}
+          onPointerCancel={handleAssistantPointerUp}
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="17" x2="12" y2="17"/>
+            <line x1="12" y1="7" x2="12" y2="7"/>
+            <line x1="17" y1="12" x2="17" y2="12"/>
+            <line x1="7" y1="12" x2="7" y2="12"/>
+            <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
+            <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
+            <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
+            <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
+          </svg>
+        </button>
+      )}
       <ChatSidebar 
       isOpen={isChatOpen} 
       onClose={() => setIsChatOpen(false)} 
