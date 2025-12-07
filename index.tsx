@@ -1035,6 +1035,81 @@ const ResponsiveStyles = ({ theme }: { theme: Theme }) => (
       font-size: 16px; /* 设置基础字体大小 */
       line-height: 1.6; /* 优化行高 */
     }
+    
+    /* iPhone 适配 - 小屏幕设备响应式设计 */
+    @media (max-width: 480px) {
+      body {
+        font-size: 14px; /* 小屏幕上减小基础字体大小 */
+      }
+      
+      /* 页面容器适配 */
+      .page-container {
+        padding: 10px !important;
+        min-height: 100vh;
+      }
+      
+      /* 浮动按钮适配 */
+      .ai-fab {
+        bottom: 90px !important;
+        right: 15px !important;
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 20px !important;
+      }
+      
+      /* 底部导航栏适配 */
+      .quiz-nav-bar {
+        padding: 12px 16px !important;
+      }
+      
+      /* 卡片组件适配 */
+      div[style*="border-radius"][style*="padding"] {
+        padding: 15px !important;
+        margin: 10px !important;
+      }
+      
+      /* 输入框适配 */
+      input, textarea, select {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+      }
+      
+      /* 按钮适配 */
+      button {
+        padding: 10px 18px !important;
+        font-size: 14px !important;
+      }
+      
+      /* 列表项适配 */
+      .syllabus-topic-item, .quiz-item {
+        padding: 12px !important;
+        margin: 6px 0 !important;
+      }
+      
+      /* 聊天界面适配 */
+      .chat-container {
+        width: 100% !important;
+        height: 90vh !important;
+      }
+      
+      /* 弹窗组件适配 */
+      div[style*="position: fixed"][style*="display: flex"] > div {
+        width: 95% !important;
+        max-width: 95% !important;
+        padding: 20px !important;
+      }
+    }
+    
+    /* iPhone X 系列适配 - 刘海屏和底部安全区域 */
+    @media (max-width: 480px) and (min-height: 812px) {
+      .ai-fab {
+        bottom: 110px !important;
+      }
+      
+      .quiz-nav-bar {
+        padding: 12px 16px 30px 16px !important;
+      }
+    }
     .ai-fab {
       position: fixed; bottom: 100px; right: 30px; width: 60px; height: 60px;
       border-radius: 50%; background: ${COLORS[theme].primary}; color: white;
@@ -1851,7 +1926,24 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   const startPositionRef = useRef({ x: 0, y: 0 }); // 记录拖拽开始位置
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // 拖拽开始
+  // 通用位置更新函数
+  const updatePosition = (clientX: number, clientY: number) => {
+    const newX = clientX - offsetRef.current.x;
+    const newY = clientY - offsetRef.current.y;
+    
+    // 限制在可视区域内
+    const maxX = window.innerWidth - 60;
+    const maxY = window.innerHeight - 60;
+    
+    const clampedX = Math.max(0, Math.min(newX, maxX));
+    const clampedY = Math.max(0, Math.min(newY, maxY));
+    
+    // 更新状态和ref
+    setPosition({ x: clampedX, y: clampedY });
+    currentPositionRef.current = { x: clampedX, y: clampedY };
+  };
+  
+  // 拖拽开始 (鼠标)
   const handleDragStart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!aiButtonRef.current) return;
@@ -1869,26 +1961,13 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     setIsClick(false); // 开始拖拽，标记为非点击事件
   };
   
-  // 拖拽移动
+  // 拖拽移动 (鼠标)
   const handleDragMove = (e: MouseEvent) => {
     if (!isDragging) return;
-    
-    const newX = e.clientX - offsetRef.current.x;
-    const newY = e.clientY - offsetRef.current.y;
-    
-    // 限制在可视区域内
-    const maxX = window.innerWidth - 60;
-    const maxY = window.innerHeight - 60;
-    
-    const clampedX = Math.max(0, Math.min(newX, maxX));
-    const clampedY = Math.max(0, Math.min(newY, maxY));
-    
-    // 更新状态和ref
-    setPosition({ x: clampedX, y: clampedY });
-    currentPositionRef.current = { x: clampedX, y: clampedY };
+    updatePosition(e.clientX, e.clientY);
   };
   
-  // 拖拽结束
+  // 拖拽结束 (通用)
   const handleDragEnd = () => {
     setIsDragging(false);
     
@@ -1934,6 +2013,38 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     clickTimeoutRef.current = setTimeout(() => {
       setIsClick(true);
     }, 150);
+  };
+  
+  // 触摸事件处理 (移动端)
+  const handleTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!aiButtonRef.current || e.touches.length !== 1) return;
+    
+    const touch = e.touches[0];
+    const rect = aiButtonRef.current.getBoundingClientRect();
+    offsetRef.current = {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    };
+    startPositionRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+    setIsDragging(true);
+    setIsClick(false); // 开始拖拽，标记为非点击事件
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!isDragging || e.touches.length !== 1) return;
+    
+    const touch = e.touches[0];
+    updatePosition(touch.clientX, touch.clientY);
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    handleDragEnd();
   };
   
   // 初始化位置和事件监听
@@ -4871,6 +4982,9 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
             setIsClick(true);
           }, 100);
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         style={{
           position: 'fixed',
           left: `${position.x}px`,
