@@ -233,9 +233,9 @@ const COLORS = {
     errorText: '#fecaca', // Red 200
     background: '#0f172a', // Slate 900
     surface: '#1e293b', // Slate 800
-    textMain: '#f1f5f9', // Slate 100
-    textSub: '#94a3b8', // Slate 400
-    textSubLight: '#475569', // Slate 600
+    textMain: '#ffffff', // White - 提高对比度
+    textSub: '#cbd5e1', // Slate 300 - 提高对比度
+    textSubLight: '#94a3b8', // Slate 400 - 提高对比度
     border: '#334155', // Slate 700
     inputBg: '#0f172a', // Slate 900
   }
@@ -581,8 +581,9 @@ const buildSuggestedTutorQuestions = (q: QuizQuestion): string[] => {
 
 // --- New Structured Explanation Renderer ---
 const renderFormattedExplanation = (q: QuizQuestion, theme: Theme) => {
-  const textColor = theme === 'dark' ? '#bfdbfe' : '#1e3a8a';
-  const titleColor = theme === 'dark' ? '#60a5fa' : '#2563eb';
+  const colors = COLORS[theme];
+  const textColor = colors.textMain;
+  const titleColor = colors.primary;
   
   const SectionHeader = ({ title }: { title: string }) => (
     <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: titleColor, marginTop: '16px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -613,7 +614,7 @@ const renderFormattedExplanation = (q: QuizQuestion, theme: Theme) => {
               if (!analysis) return null;
               return (
                 <li key={opt.id} style={{ marginBottom: '6px', display: 'flex', gap: '8px' }}>
-                  <span style={{ fontWeight: 'bold', minWidth: '20px' }}>{opt.id}.</span>
+                  <span style={{ fontWeight: 'bold', minWidth: '20px' }}>{letter}.</span>
                   <span>{analysis}</span>
                 </li>
               );
@@ -3257,7 +3258,10 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
         {showExplanation && (
           <div style={{ animation: 'fadeIn 0.5s', background: theme === 'dark' ? '#1e3a8a' : '#eff6ff', borderLeft: '5px solid ' + colors.primary + '', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: theme === 'dark' ? '#93c5fd' : '#1e40af' }}>💡 正确答案: {question.answerIds.join('、')}</h4>
+            <h4 style={{ margin: '0 0 10px 0', color: colors.primary }}>💡 正确答案: {question.answerIds.map(id => {
+              const idx = question.options.findIndex(opt => opt.id === id);
+              return idx >= 0 ? indexToLetter(idx) : id;
+            }).join('、')}</h4>
             {renderFormattedExplanation(question, theme)}
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
                <button onClick={() => setIsChatOpen(true)} style={{ background: colors.surface, color: colors.primary, border: '1px solid ' + colors.primary + '', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>🤖 问问 AI</button>
