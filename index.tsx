@@ -226,7 +226,7 @@ const COLORS = {
     success: '#059669', // Green 600
     successLight: '#064e3b', // Green 900
     successBorder: '#059669', // Green 600
-    successText: '#a7f3d0', // Green 200
+    successText: '#ffffff', // White - 提高对比度
     error: '#dc2626', // Red 600
     errorBg: '#7f1d1d', // Red 900
     errorBorder: '#dc2626', // Red 600
