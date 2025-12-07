@@ -1751,123 +1751,9 @@ const App = () => {
   const [isGeneratingInBank, setIsGeneratingInBank] = useState(false);
   const [showAnswerSheetModal, setShowAnswerSheetModal] = useState(false);
 
-  // 悬浮助手按钮的位置（以屏幕左上角为基准，单位 px）
-  const [assistantPos, setAssistantPos] = useState<{ x: number; y: number } | null>(null);
 
-  // 拖动过程中的临时状态
-  const assistantDragRef = useRef<{
-    pointerId: number;
-    startX: number;
-    startY: number;
-    startPosX: number;
-    startPosY: number;
-    width: number;
-    height: number;
-  } | null>(null);
 
-  // 初始化悬浮助手按钮位置
-  useEffect(() => {
-    // 组件挂载后计算一个初始位置：靠右下角一点
-    const margin = 16;   // 距离右边的最小间距
-    const bottom = 96;   // 距离底部的间距
-    const size = 56;     // 按钮大约直径（和样式里差不多就行）
 
-    const x = window.innerWidth - size - margin;
-    const y = window.innerHeight - size - bottom;
-
-    setAssistantPos({ x: Math.max(margin, x), y: Math.max(margin, y) });
-  }, []);
-
-// 工具函数：限制在 [min, max] 范围内
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-
-// 按下：开始拖动
-const handleAssistantPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-  if (!assistantPos) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  const rect = e.currentTarget.getBoundingClientRect();
-
-  assistantDragRef.current = {
-    pointerId: e.pointerId,
-    startX: e.clientX,
-    startY: e.clientY,
-    startPosX: rect.left,
-    startPosY: rect.top,
-    width: rect.width,
-    height: rect.height,
-  };
-
-  // 捕获后续的 move / up 事件（对触摸很重要）
-  e.currentTarget.setPointerCapture(e.pointerId);
-};
-
-// 移动：更新位置
-const handleAssistantPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-  const drag = assistantDragRef.current;
-  if (!drag || drag.pointerId !== e.pointerId) return;
-
-  const dx = e.clientX - drag.startX;
-  const dy = e.clientY - drag.startY;
-
-  const margin = 8;
-  const maxX = window.innerWidth - drag.width - margin;
-  const maxY = window.innerHeight - drag.height - margin;
-
-  setAssistantPos({
-    x: clamp(drag.startPosX + dx, margin, maxX),
-    y: clamp(drag.startPosY + dy, margin, maxY),
-  });
-};
-
-// 自动吸附到边栏
-const snapToSidebar = (x: number, width: number) => {
-  const screenWidth = window.innerWidth;
-  const margin = 16;
-  const leftThreshold = screenWidth * 0.3;
-  const rightThreshold = screenWidth * 0.7;
-  
-  if (x < leftThreshold) {
-    return margin;
-  } else if (x > rightThreshold) {
-    return screenWidth - width - margin;
-  }
-  return x;
-};
-
-// 抬起：结束拖动，如果位移很小就当成点击
-const handleAssistantPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-  const drag = assistantDragRef.current;
-  if (!drag || drag.pointerId !== e.pointerId) return;
-
-  const dx = e.clientX - drag.startX;
-  const dy = e.clientY - drag.startY;
-  const distance = Math.hypot(dx, dy);
-
-  try {
-    e.currentTarget.releasePointerCapture(e.pointerId);
-  } catch {}
-
-  const finalX = snapToSidebar(drag.startPosX + dx, drag.width);
-  const margin = 8;
-  const maxX = window.innerWidth - drag.width - margin;
-  const maxY = window.innerHeight - drag.height - margin;
-  
-  // 更新位置并应用吸附效果
-  setAssistantPos({
-    x: clamp(finalX, margin, maxX),
-    y: clamp(drag.startPosY + dy, margin, maxY),
-  });
-  
-  assistantDragRef.current = null;
-
-  // 位移很小 → 当成点击
-  if (distance < 6) {
-    setIsChatOpen(!isChatOpen);
-  }
-};
 
 // 控制背景滚动
 useEffect(() => {
@@ -1882,6 +1768,108 @@ useEffect(() => {
 }, [showAnswerSheetModal]);
 
   const isGenerating = false; // 不再显示前端阻塞弹窗，所有生成操作都在后台运行
+  
+  // 工具函数：限制在 [min, max] 范围内
+  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+  
+  // 按下：开始拖动
+  const handleAssistantPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!assistantPos) return;
+  
+    e.preventDefault();
+    e.stopPropagation();
+  
+    const rect = e.currentTarget.getBoundingClientRect();
+  
+    assistantDragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startPosX: rect.left,
+      startPosY: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
+  
+    // 捕获后续的 move / up 事件（对触摸很重要）
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  
+  // 移动：更新位置
+  const handleAssistantPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = assistantDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+  
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+  
+    const margin = 8;
+    const maxX = window.innerWidth - drag.width - margin;
+    const maxY = window.innerHeight - drag.height - margin;
+  
+    setAssistantPos({
+      x: clamp(drag.startPosX + dx, margin, maxX),
+      y: clamp(drag.startPosY + dy, margin, maxY),
+    });
+  };
+  
+  // 抬起：结束拖动，如果位移很小就当成点击
+  const handleAssistantPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = assistantDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+  
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    const distance = Math.hypot(dx, dy);
+  
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+  
+    assistantDragRef.current = null;
+  
+    // 位移很小 → 当成点击
+    if (distance < 6) {
+      // 切换AI助手面板的显示状态
+      setIsChatOpen(prev => !prev);
+    } else {
+      // 自动吸附到侧边栏
+      const margin = 8;
+      const finalX = drag.startPosX + dx;
+      const finalY = drag.startPosY + dy;
+      const maxY = window.innerHeight - drag.height - margin;
+      
+      // 计算屏幕中线，决定吸附到左侧还是右侧
+      const screenCenter = window.innerWidth / 2;
+      let snappedX;
+      
+      if (finalX < screenCenter) {
+        // 吸附到左侧
+        snappedX = margin;
+      } else {
+        // 吸附到右侧
+        snappedX = window.innerWidth - drag.width - margin;
+      }
+      
+      // 更新按钮位置到吸附后的坐标
+      setAssistantPos({
+        x: snappedX,
+        y: clamp(finalY, margin, maxY),
+      });
+    }
+  };
+  
+  // 处理悬浮助手按钮的指针取消事件（拖动意外结束）
+  const handleAssistantPointerCancel = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = assistantDragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+    
+    assistantDragRef.current = null;
+  };
 
   // 答题记录状态
 
@@ -1948,6 +1936,34 @@ useEffect(() => {
   };
   
   const [isChatOpen, setIsChatOpen] = useState(false);
+  
+  // 悬浮助手按钮的位置（以屏幕左上角为基准，单位 px）
+  const [assistantPos, setAssistantPos] = useState<{ x: number; y: number } | null>(null);
+
+  // 拖动过程中的临时状态
+  const assistantDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startPosX: number;
+    startPosY: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  
+  // 设置悬浮助手按钮的初始位置
+  useEffect(() => {
+    // 组件挂载后计算一个初始位置：靠右下角一点
+    const margin = 16;   // 距离右边的最小间距
+    const bottom = 96;   // 距离底部的间距
+    const size = 56;     // 按钮大约直径（和样式里差不多就行）
+
+    const x = window.innerWidth - size - margin;
+    const y = window.innerHeight - size - bottom;
+
+    setAssistantPos({ x: Math.max(margin, x), y: Math.max(margin, y) });
+  }, []);
+  
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(() => {
     // Load chat sessions from localStorage
     const saved = localStorage.getItem('chatSessions');
@@ -3464,33 +3480,35 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                 <button onClick={() => setIsEditingTitle(false)} style={{ padding: '4px 8px', background: colors.disabled, color: colors.textSub, border: 'none', borderRadius: '4px', cursor: 'pointer' }}>取消</button>
              </div>
         ) : (
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {/* 使用SVG实现文字渐变 */}
-              <svg width="auto" height="30" viewBox="0 0 400 30" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible' }}>
-                <defs>
-                  <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    {theme === 'dark' ? (
-                      <>
-                        <stop offset="0%" stopColor="#667eea" />
-                        <stop offset="100%" stopColor="#764ba2" />
-                      </>
-                    ) : (
-                      <>
-                        <stop offset="0%" stopColor="#4facfe" />
-                        <stop offset="100%" stopColor="#00f2fe" />
-                      </>
-                    )}
-                  </linearGradient>
-                </defs>
-                <text x="0" y="22" fill="url(#titleGradient)" style={{ fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
-                  {appTitle}
-                </text>
-              </svg>
-              <button onClick={handleRenameAppTitle} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px', color: colors.textSub }} title="修改标题">✎</button>
-              <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', verticalAlign: 'middle' }}>{APP_VERSION}</span>
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', margin: 0 }}>
+              <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* 使用SVG实现文字渐变 */}
+                <svg width="auto" height="36" viewBox="0 0 500 36" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible' }}>
+                  <defs>
+                    <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      {theme === 'dark' ? (
+                        <>
+                          <stop offset="0%" stopColor="#667eea" />
+                          <stop offset="100%" stopColor="#764ba2" />
+                        </>
+                      ) : (
+                        <>
+                          <stop offset="0%" stopColor="#4facfe" />
+                          <stop offset="100%" stopColor="#00f2fe" />
+                        </>
+                      )}
+                    </linearGradient>
+                  </defs>
+                  <text x="0" y="26" fill="url(#titleGradient)" style={{ fontSize: '28px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+                    {appTitle}
+                  </text>
+                </svg>
+              </h1>
+              <button onClick={handleRenameAppTitle} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '18px', color: colors.textSub }} title="修改标题">✎</button>
+              <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle' }}>{APP_VERSION}</span>
+              <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
+            </div>
         )}
-        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
@@ -5154,7 +5172,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         </div>
       )}
 
-      {/* AI 入口按钮 - 支持拖动和自动吸附 */}
+      {/* AI 入口按钮 - 可拖动版本 */}
       {assistantPos && (
         <button
           className="ai-fab"
@@ -5164,26 +5182,26 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
             left: assistantPos.x,
             top: assistantPos.y,
             zIndex: 50,
-            transform: "translateZ(0)", // 提升渲染层级，防止被其他元素遮挡
+            touchAction: "none", // ⚠️ 关键：允许手指拖动，不让浏览器把它当成滚动
           }}
           onPointerDown={handleAssistantPointerDown}
           onPointerMove={handleAssistantPointerMove}
           onPointerUp={handleAssistantPointerUp}
           onPointerCancel={handleAssistantPointerUp}
         >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="17" x2="12" y2="17"/>
-            <line x1="12" y1="7" x2="12" y2="7"/>
-            <line x1="17" y1="12" x2="17" y2="12"/>
-            <line x1="7" y1="12" x2="7" y2="12"/>
-            <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
-            <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
-            <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
-            <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
-          </svg>
-        </button>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="17" x2="12" y2="17"/>
+          <line x1="12" y1="7" x2="12" y2="7"/>
+          <line x1="17" y1="12" x2="17" y2="12"/>
+          <line x1="7" y1="12" x2="7" y2="12"/>
+          <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
+          <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
+          <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
+          <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
+        </svg>
+      </button>
       )}
       <ChatSidebar 
       isOpen={isChatOpen} 
