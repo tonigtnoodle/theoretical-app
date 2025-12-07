@@ -210,13 +210,14 @@ const COLORS = {
     errorBg: '#fee2e2', // Red 100
     errorBorder: '#b91c1c', // Red 700
     errorText: '#7f1d1d', // Red 900
-    background: '#f8fafc',
+    background: '#f1f5f9',
     surface: '#ffffff',
-    textMain: '#1e293b', // Slate 800
-    textSub: '#475569', // Slate 600
-    textSubLight: '#cbd5e1', // Slate 300
-    border: '#e2e8f0', // Slate 200
+    textMain: '#0f172a', // Slate 900 - 更深的主文本颜色
+    textSub: '#334155', // Slate 700 - 更深的次要文本颜色
+    textSubLight: '#64748b', // Slate 500 - 调整次要浅色文本
+    border: '#cbd5e1', // Slate 300
     inputBg: '#ffffff',
+    cardShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
   },
   dark: {
     primary: '#3b82f6', // Blue 500
@@ -235,8 +236,8 @@ const COLORS = {
     background: '#0f172a', // Slate 900
     surface: '#1e293b', // Slate 800
     textMain: '#ffffff', // White - 提高对比度
-    textSub: '#cbd5e1', // Slate 300 - 提高对比度
-    textSubLight: '#94a3b8', // Slate 400 - 提高对比度
+    textSub: '#f1f5f9', // Slate 100 - 更亮的次要文本颜色
+    textSubLight: '#cbd5e1', // Slate 300 - 调整次要浅色文本
     border: '#334155', // Slate 700
     inputBg: '#0f172a', // Slate 900
   }
@@ -550,7 +551,7 @@ function normalizeSyllabusJson(raw: string): SyllabusPreset | null {
     });
 
     const preset: SyllabusPreset = {
-      id: String(rawObj.id ?? slugId('syllabus', name ?? 'preset', 0)),
+      id: String(rawObj.id ?? slugId('syllabus', name ?? 'preset', Date.now())),
       name: String(name ?? `导入大纲 ${new Date().toLocaleString()}`),
       books: normBooks,
     };
@@ -1031,6 +1032,8 @@ const ResponsiveStyles = ({ theme }: { theme: Theme }) => (
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      font-size: 16px; /* 设置基础字体大小 */
+      line-height: 1.6; /* 优化行高 */
     }
     .ai-fab {
       position: fixed; bottom: 100px; right: 30px; width: 60px; height: 60px;
@@ -1051,6 +1054,100 @@ const ResponsiveStyles = ({ theme }: { theme: Theme }) => (
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
+    /* Enhanced card styles for better visibility in light mode */
+    ${theme === 'light' ? `
+      .card-touch {
+        background: ${COLORS[theme].surface} !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid #94a3b8 !important; /* Slate 400 for better contrast */
+        transition: all 0.3s ease !important;
+      }
+      .ios26-card {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #94a3b8 !important; /* Slate 400 for better contrast */
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+        transition: all 0.3s ease !important;
+      }
+      /* Main interface cards */
+      .app-screen > div[style*="border-radius"], .app-screen > div[style*="background:"] {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid #94a3b8 !important; /* Slate 400 for better contrast */
+        transition: all 0.3s ease !important;
+      }
+      /* Quiz interface cards */
+      .app-screen[data-screen="quiz"] > div[style*="border-radius"], .app-screen[data-screen="quiz"] > div[style*="background:"] {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid #94a3b8 !important; /* Slate 400 for better contrast */
+        transition: all 0.3s ease !important;
+      }
+      /* All buttons with rounded corners */
+      /* Removed forced border styling */
+      /* Form elements */
+      input[style*="border-radius"], select[style*="border-radius"] {
+        border: 1px solid #94a3b8 !important; /* Slate 400 for better contrast */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.3s ease !important;
+      }
+    ` : ''}
+    
+    /* Hover effects for all interactive elements */
+    .card-touch:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Button hover effects */
+    button:not([disabled]):hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Quiz option hover */
+    .quiz-option:not([disabled]):hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Settings card hover */
+    .app-screen[data-screen="settings"] > div[style*="border-radius"]:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    /* Enhanced title styles */
+    h1, h2, h3, .app-title, .screen-title {
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: inline-block;
+      margin: 8px 0;
+      border: none !important;
+    }
+    h1, .app-title {
+      font-size: 28px;
+      line-height: 1.2;
+    }
+    h2, .screen-title {
+      font-size: 24px;
+      line-height: 1.3;
+    }
+    h3 {
+      font-size: 20px;
+      line-height: 1.4;
+    }
+    /* Quiz card hover effects */
+    .quiz-question-card {
+      /* No transitions or hover effects for fixed card */
+    }
+    
+    /* Quiz options hover effects */
+    .quiz-option {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
     @media (max-width: 768px) {
       .ai-fab { bottom: 100px !important; right: 20px !important; }
       .chat-input-field { font-size: 16px !important; }
@@ -1072,65 +1169,12 @@ const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 
   </div>
 );
 
-const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: any) => {
+const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme, chatSessions, currentSessionId, setCurrentSessionId, createNewSession, deleteSession, exportSession }: any) => {
   const [input, setInput] = useState("");
-  const [position, setPosition] = useState({ x: window.innerWidth - 350, y: 0 });
+  const [showSessions, setShowSessions] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<HTMLDivElement>(null);
-  const startPos = useRef({ x: 0, y: 0 });
-  const isDragging = useRef(false);
   const colors = COLORS[theme];
   
-  // 拖拽开始
-  const handleDragStart = (e: React.MouseEvent) => {
-    if (!dragRef.current) return;
-    // 阻止默认文本选择行为
-    e.preventDefault();
-    isDragging.current = true;
-    startPos.current = {
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    };
-    document.addEventListener('mousemove', handleDrag);
-    document.addEventListener('mouseup', handleDragEnd);
-  };
-  
-  // 拖拽中
-  const handleDrag = (e: MouseEvent) => {
-    if (!isDragging.current) return;
-    // 获取窗口尺寸限制
-    const maxX = window.innerWidth - 350;
-    const maxY = window.innerHeight - 50;
-    
-    // 计算新位置并限制在窗口内
-    let newX = e.clientX - startPos.current.x;
-    let newY = e.clientY - startPos.current.y;
-    
-    newX = Math.max(0, Math.min(newX, maxX));
-    newY = Math.max(0, Math.min(newY, maxY));
-    
-    setPosition({ x: newX, y: newY });
-  };
-  
-  // 拖拽结束，取消自动吸附，让用户可以自由放置
-  const handleDragEnd = () => {
-    isDragging.current = false;
-    document.removeEventListener('mousemove', handleDrag);
-    document.removeEventListener('mouseup', handleDragEnd);
-  };
-  
-  // 响应窗口大小变化
-  useEffect(() => {
-    const handleResize = () => {
-      const screenWidth = window.innerWidth;
-      if (position.x > screenWidth - 350) {
-        setPosition(prev => ({ ...prev, x: screenWidth - 350 }));
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [position.x]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -1145,14 +1189,25 @@ const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: an
   return (
     <>
       {isOpen && <div onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 40 }} />}
-      <div ref={dragRef} style={{
-        position: 'fixed', top: position.y, bottom: 0, width: '350px', maxWidth: '85vw',
-        left: position.x,
-        backgroundColor: colors.surface, zIndex: 50,
-        boxShadow: '-4px 0 15px rgba(0,0,0,0.3)',
-        transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform 0.3s ease-in-out',
-        display: 'flex', flexDirection: 'column'
+      <div style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: isOpen ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%) scale(0.9)',
+        width: '600px',
+        height: '800px',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        backgroundColor: colors.surface,
+        zIndex: 50,
+        boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+        borderRadius: '12px',
+        opacity: isOpen ? 1 : 0,
+        visibility: isOpen ? 'visible' : 'hidden',
+        transition: 'all 0.3s ease-in-out',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}>
         <div 
           style={{ 
@@ -1161,16 +1216,162 @@ const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: an
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center', 
-            background: colors.background,
-            cursor: 'move',
+            background: colors.primary,
+            color: 'white',
             userSelect: 'none'
           }}
-          onMouseDown={handleDragStart}
         >
-          <h3 style={{ margin: 0, color: colors.textMain }}>🤖 AI 答疑助手</h3>
-          <button onClick={onClose} style={{ border: 'none', background: 'transparent', fontSize: '24px', cursor: 'pointer', color: colors.textSub }}>×</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '18px' }}>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="17" x2="12" y2="17"/>
+    <line x1="12" y1="7" x2="12" y2="7"/>
+    <line x1="17" y1="12" x2="17" y2="12"/>
+    <line x1="7" y1="12" x2="7" y2="12"/>
+    <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
+    <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
+    <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
+    <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
+  </svg> AI 答疑助手
+</h3>
+            <button 
+              onClick={() => setShowSessions(!showSessions)}
+              style={{ 
+                border: 'none', 
+                background: 'rgba(255,255,255,0.2)', 
+                fontSize: '14px', 
+                cursor: 'pointer', 
+                color: 'white', 
+                padding: '6px 10px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                style={{ transition: 'transform 0.3s ease', transform: showSessions ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              >
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              {showSessions ? '收起' : '会话'}
+            </button>
+            <button 
+              onClick={createNewSession}
+              style={{ 
+                border: 'none', 
+                background: 'rgba(255,255,255,0.2)', 
+                fontSize: '14px', 
+                cursor: 'pointer', 
+                color: 'white', 
+                padding: '6px 10px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              新对话
+            </button>
+          </div>
+          <button onClick={onClose} style={{ border: 'none', background: 'transparent', fontSize: '28px', cursor: 'pointer', color: 'white', padding: '0 5px' }}>×</button>
         </div>
-        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', background: colors.surface }}>
+        {showSessions && (
+          <div style={{ 
+            maxHeight: '150px', 
+            overflowY: 'auto', 
+            borderBottom: '1px solid ' + colors.border + '',
+            background: colors.surface,
+            animation: 'fadeIn 0.3s ease'
+          }}>
+            {chatSessions.map(session => (
+              <div 
+                key={session.id} 
+                style={{
+                  padding: '12px 16px',
+                  borderBottom: '1px solid ' + colors.border + '',
+                  background: currentSessionId === session.id ? (theme === 'dark' ? '#374151' : '#f3f4f6') : colors.surface,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+                onClick={() => setCurrentSessionId(session.id)}
+              >
+                <div style={{ fontSize: '14px', color: colors.textMain, maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {session.title}
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      exportSession(session.id);
+                    }}
+                    style={{ 
+                      border: 'none', 
+                      background: 'transparent', 
+                      color: colors.textSub, 
+                      cursor: 'pointer',
+                      padding: '4px 6px',
+                      borderRadius: '4px'
+                    }}
+                    title="导出对话"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('确定要删除这个对话吗？')) {
+                        deleteSession(session.id);
+                      }
+                    }}
+                    style={{ 
+                      border: 'none', 
+                      background: 'transparent', 
+                      color: colors.textSub, 
+                      cursor: 'pointer',
+                      padding: '4px 6px',
+                      borderRadius: '4px'
+                    }}
+                    title="删除对话"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      <line x1="10" y1="11" x2="10" y2="17"/>
+                      <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', background: colors.surface }}>
           {messages.length === 0 && (
             <div style={{ textAlign: 'center', color: colors.textSub, marginTop: '40px' }}>
               <p>👋 你好！我是你的学习助手。</p>
@@ -1192,11 +1393,11 @@ const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: an
               <div style={{
                 backgroundColor: msg.role === 'user' ? colors.primary : (theme === 'dark' ? '#334155' : '#f3f4f6'),
                 color: msg.role === 'user' ? 'white' : colors.textMain,
-                padding: '10px 14px', borderRadius: '12px',
-                borderBottomRightRadius: msg.role === 'user' ? '2px' : '12px',
-                borderBottomLeftRadius: msg.role === 'user' ? '12px' : '2px',
-                fontSize: '14px', lineHeight: '1.5',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                padding: '14px 18px', borderRadius: '16px',
+                borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px',
+                borderBottomLeftRadius: msg.role === 'user' ? '16px' : '4px',
+                fontSize: '15px', lineHeight: '1.6',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}>
                 {msg.role === 'user' ? msg.content : (
                   <div className="ai-markdown" dangerouslySetInnerHTML={{ 
@@ -1208,10 +1409,25 @@ const ChatSidebar = ({ isOpen, onClose, messages, onSend, isLoading, theme }: an
           ))}
           {isLoading && <div style={{ alignSelf: 'flex-start', color: colors.textSub, fontSize: '12px' }}>思考中...</div>}
         </div>
-        <div style={{ padding: '16px', borderTop: '1px solid ' + colors.border + '', background: colors.surface }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input className="chat-input-field" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="输入你的问题..." />
-            <button onClick={handleSend} disabled={isLoading} style={{ width: '40px', height: '40px', borderRadius: '50%', border: 'none', backgroundColor: colors.primary, color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>➤</button>
+        <div style={{ padding: '16px 20px', borderTop: '1px solid ' + colors.border + '', background: colors.surface }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+            <input 
+              className="chat-input-field" 
+              value={input} 
+              onChange={(e) => setInput(e.target.value)} 
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
+              placeholder="输入你的问题..." 
+              style={{
+                flex: 1,
+                padding: '14px 18px',
+                borderRadius: '24px',
+                border: '1px solid ' + colors.border + '',
+                backgroundColor: colors.background,
+                fontSize: '15px',
+                resize: 'none'
+              }}
+            />
+            <button onClick={handleSend} disabled={isLoading} style={{ width: '48px', height: '48px', borderRadius: '50%', border: 'none', backgroundColor: colors.primary, color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '20px' }}>➤</button>
           </div>
         </div>
       </div>
@@ -1385,6 +1601,18 @@ const App = () => {
   const [isGeneratingInBank, setIsGeneratingInBank] = useState(false);
   const [showAnswerSheetModal, setShowAnswerSheetModal] = useState(false);
 
+// 控制背景滚动
+useEffect(() => {
+  if (showAnswerSheetModal) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+  return () => {
+    document.body.style.overflow = '';
+  };
+}, [showAnswerSheetModal]);
+
   const isGenerating = false; // 不再显示前端阻塞弹窗，所有生成操作都在后台运行
 
   // 答题记录状态
@@ -1442,9 +1670,120 @@ const App = () => {
     } catch { return {}; }
   });
 
+  // Chat Session Management
+  type ChatSession = {
+    id: string;
+    title: string;
+    messages: {role: string, content: string, reasoning?: string}[];
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState<{role: string, content: string, reasoning?: string}[]>([]);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>(() => {
+    // Load chat sessions from localStorage
+    const saved = localStorage.getItem('chatSessions');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.map((session: any) => ({
+        ...session,
+        createdAt: new Date(session.createdAt),
+        updatedAt: new Date(session.updatedAt)
+      }));
+    }
+    return [{
+      id: `session-${Date.now()}`,
+      title: '新对话',
+      messages: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }];
+  });
+  const [currentSessionId, setCurrentSessionId] = useState<string>(chatSessions.length > 0 ? chatSessions[0].id : `session-${Date.now()}`);
+  
+  // Get current session
+  const currentSession = chatSessions.find(session => session.id === currentSessionId);
+  const chatMessages = currentSession?.messages || [];
   const [chatLoading, setChatLoading] = useState(false);
+  
+  // Save chat sessions to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('chatSessions', JSON.stringify(chatSessions));
+  }, [chatSessions]);
+  
+  // Update chat messages
+  const updateChatMessages = (messages: {role: string, content: string, reasoning?: string}[]) => {
+    setChatSessions(prev => prev.map(session => {
+      if (session.id === currentSessionId) {
+        // Extract title from first user message if not set
+        let title = session.title;
+        if (title === '新对话' && messages.length > 0) {
+          const firstUserMsg = messages.find(m => m.role === 'user');
+          if (firstUserMsg) {
+            title = firstUserMsg.content.substring(0, 20) + (firstUserMsg.content.length > 20 ? '...' : '');
+          }
+        }
+        return {
+          ...session,
+          messages,
+          title,
+          updatedAt: new Date()
+        };
+      }
+      return session;
+    }));
+  };
+  
+  // Create new chat session
+  const createNewSession = () => {
+    const newSession: ChatSession = {
+      id: `session-${Date.now()}`,
+      title: '新对话',
+      messages: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    setChatSessions(prev => [newSession, ...prev]);
+    setCurrentSessionId(newSession.id);
+  };
+  
+  // Delete chat session
+  const deleteSession = (sessionId: string) => {
+    setChatSessions(prev => prev.filter(session => session.id !== sessionId));
+    // If deleting current session, switch to another one
+    if (sessionId === currentSessionId) {
+      const remainingSessions = chatSessions.filter(session => session.id !== sessionId);
+      if (remainingSessions.length > 0) {
+        setCurrentSessionId(remainingSessions[0].id);
+      } else {
+        // Create a new session if all are deleted
+        createNewSession();
+      }
+    }
+  };
+  
+  // Export chat session
+  const exportSession = (sessionId: string) => {
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (!session) return;
+    
+    const exportData = {
+      title: session.title,
+      createdAt: session.createdAt.toISOString(),
+      updatedAt: session.updatedAt.toISOString(),
+      messages: session.messages
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `${session.title}_${session.updatedAt.toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
   const [showStats, setShowStats] = useState(false);
 
     const [editingBankId, setEditingBankId] = useState<string | null>(null);
@@ -1500,6 +1839,169 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     stored?: StoredQuizProgress | null;
   };
   const [resumeDialog, setResumeDialog] = useState<ResumeDialogState | null>(null);
+  
+  // --- 拖拽相关功能 --- //
+  // 拖拽状态
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: window.innerWidth - 90, y: 100 }); // 默认位置：右下角
+  const [isClick, setIsClick] = useState(true); // 标记是否为点击事件
+  const aiButtonRef = useRef<HTMLButtonElement>(null);
+  const offsetRef = useRef({ x: 0, y: 0 }); // 使用ref跟踪偏移量
+  const currentPositionRef = useRef({ x: window.innerWidth - 90, y: 100 }); // 实时跟踪当前位置
+  const startPositionRef = useRef({ x: 0, y: 0 }); // 记录拖拽开始位置
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 拖拽开始
+  const handleDragStart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!aiButtonRef.current) return;
+    
+    const rect = aiButtonRef.current.getBoundingClientRect();
+    offsetRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+    startPositionRef.current = {
+      x: e.clientX,
+      y: e.clientY
+    };
+    setIsDragging(true);
+    setIsClick(false); // 开始拖拽，标记为非点击事件
+  };
+  
+  // 拖拽移动
+  const handleDragMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const newX = e.clientX - offsetRef.current.x;
+    const newY = e.clientY - offsetRef.current.y;
+    
+    // 限制在可视区域内
+    const maxX = window.innerWidth - 60;
+    const maxY = window.innerHeight - 60;
+    
+    const clampedX = Math.max(0, Math.min(newX, maxX));
+    const clampedY = Math.max(0, Math.min(newY, maxY));
+    
+    // 更新状态和ref
+    setPosition({ x: clampedX, y: clampedY });
+    currentPositionRef.current = { x: clampedX, y: clampedY };
+  };
+  
+  // 拖拽结束
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    
+    // 获取最新的拖拽位置
+    const latestPosition = currentPositionRef.current;
+    const newPosition = { ...latestPosition };
+    
+    // 自动吸附到最近的边栏
+    const snapDistance = 150; // 扩大吸附范围，更容易触发吸附
+    
+    // 计算到各边的距离
+    const distanceToLeft = latestPosition.x;
+    const distanceToRight = window.innerWidth - 60 - latestPosition.x;
+    const distanceToTop = latestPosition.y;
+    const distanceToBottom = window.innerHeight - 60 - latestPosition.y;
+    
+    // 确定最近的边
+    const minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
+    
+    // 吸附到最近的边栏
+    if (minDistance === distanceToLeft && distanceToLeft < snapDistance) {
+      // 吸附到左边
+      newPosition.x = 10;
+    } else if (minDistance === distanceToRight && distanceToRight < snapDistance) {
+      // 吸附到右边
+      newPosition.x = window.innerWidth - 70;
+    } else if (minDistance === distanceToTop && distanceToTop < snapDistance) {
+      // 吸附到顶部
+      newPosition.y = 10;
+    } else if (minDistance === distanceToBottom && distanceToBottom < snapDistance) {
+      // 吸附到底部
+      newPosition.y = window.innerHeight - 70;
+    }
+    
+    // 更新位置
+    setPosition(newPosition);
+    currentPositionRef.current = newPosition;
+    
+    // 保存位置到localStorage
+    localStorage.setItem('aiButtonPosition', JSON.stringify(newPosition));
+    
+    // 延迟重置点击状态
+    clickTimeoutRef.current = setTimeout(() => {
+      setIsClick(true);
+    }, 150);
+  };
+  
+  // 初始化位置和事件监听
+  useEffect(() => {
+    // 从localStorage加载位置
+    const savedPosition = localStorage.getItem('aiButtonPosition');
+    if (savedPosition) {
+      try {
+        const loadedPosition = JSON.parse(savedPosition);
+        setPosition(loadedPosition);
+        currentPositionRef.current = loadedPosition;
+      } catch (error) {
+        console.error('Failed to parse saved position:', error);
+      }
+    }
+    
+    // 添加全局事件监听
+    const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+    const handleMouseUp = () => handleDragEnd();
+    
+    return () => {
+      // 清理事件监听
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+    };
+  }, []);
+  
+  // 拖拽时的全局事件监听
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+    } else {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+    }
+    
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+    };
+  }, [isDragging]);
+  
+  // 窗口大小改变时调整位置
+  useEffect(() => {
+    const handleResize = () => {
+      const savedPosition = localStorage.getItem('aiButtonPosition');
+      if (savedPosition) {
+        const pos = JSON.parse(savedPosition);
+        const maxX = window.innerWidth - 60;
+        const maxY = window.innerHeight - 60;
+        
+        // 确保位置在新窗口大小内
+        setPosition({
+          x: Math.max(0, Math.min(pos.x, maxX)),
+          y: Math.max(0, Math.min(pos.y, maxY))
+        });
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // --- Hook Refs ---
   const currentTagInput = useRef<HTMLInputElement>(null);
@@ -1961,7 +2463,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         Rules:
         1. Identify top-level subjects or book titles as "books".
         2. Identify ALL levels of topics, modules, chapters, or sections under each book as "topics".
-        3. Preserve the exact titles from the original text, including all secondary and lower-level headings.
+        3. CRITICAL: Preserve the EXACT titles from the original text, including all secondary and lower-level headings. Do NOT modify, translate, or simplify any titles.
         4. For nested topics, use a hierarchical structure with "topics" arrays inside each topic object.
         5. Output strict JSON format with nested structure:
         {
@@ -1981,8 +2483,9 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
             }
           ]
         }
-        6. Do not include Markdown formatting. Return only JSON.
-        7. Do NOT create generic topic names like "Module 1", "Topic 2" - use the exact titles from the input.
+        6. Do not include Markdown formatting, explanations, or any other text besides the JSON.
+        7. CRITICAL: Do NOT create generic topic names like "Module 1", "Topic 2", "章节1", or "模块1" - use the EXACT titles from the input text.
+        8. If you cannot determine the exact title from the input text, leave it as it is without inventing names.
         
         Syllabus Text:
         ${syllabusRawText}
@@ -2604,7 +3107,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   const finishQuiz = () => navigateTo('result');
 
   const handleChatSend = async (userMsg: string) => {
-    setChatMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    updateChatMessages([...chatMessages, { role: "user", content: userMsg }]);
     setChatLoading(true);
     try {
       const currentQ = screen === 'quiz' ? quizData[currentQIndex] : null;
@@ -2620,9 +3123,9 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         messages = [{ role: "system", content: contextSystem }, ...chatMessages.map(m => ({role: m.role as any, content: m.content})), { role: "user", content: userMsg }];
       }
       const content = await callLLM(apiConfig, messages);
-      setChatMessages(prev => [...prev, { role: "assistant", content }]);
+      updateChatMessages([...chatMessages, { role: "user", content: userMsg }, { role: "assistant", content }]);
     } catch (err: any) {
-      setChatMessages(prev => [...prev, { role: "assistant", content: `出错: ${err.message}` }]);
+      updateChatMessages([...chatMessages, { role: "user", content: userMsg }, { role: "assistant", content: `出错: ${err.message}` }]);
     } finally {
       setChatLoading(false);
     }
@@ -2657,13 +3160,33 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                 <button onClick={() => setIsEditingTitle(false)} style={{ padding: '4px 8px', background: colors.disabled, color: colors.textSub, border: 'none', borderRadius: '4px', cursor: 'pointer' }}>取消</button>
              </div>
         ) : (
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: colors.textMain, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {appTitle}
+            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* 使用SVG实现文字渐变 */}
+              <svg width="auto" height="30" viewBox="0 0 400 30" preserveAspectRatio="none" style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible' }}>
+                <defs>
+                  <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    {theme === 'dark' ? (
+                      <>
+                        <stop offset="0%" stopColor="#667eea" />
+                        <stop offset="100%" stopColor="#764ba2" />
+                      </>
+                    ) : (
+                      <>
+                        <stop offset="0%" stopColor="#4facfe" />
+                        <stop offset="100%" stopColor="#00f2fe" />
+                      </>
+                    )}
+                  </linearGradient>
+                </defs>
+                <text x="0" y="22" fill="url(#titleGradient)" style={{ fontSize: '24px', fontWeight: '800', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+                  {appTitle}
+                </text>
+              </svg>
               <button onClick={handleRenameAppTitle} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px', color: colors.textSub }} title="修改标题">✎</button>
               <span style={{ fontSize: '12px', fontWeight: 'normal', color: colors.textSub, background: theme === 'dark' ? '#334155' : '#e2e8f0', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', verticalAlign: 'middle' }}>{APP_VERSION}</span>
             </h1>
         )}
-        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>{theme === 'light' ? '🌙' : '☀️'}</button>
+        <button onClick={toggleTheme} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textSub }}>{theme === 'light' ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>}</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
@@ -2684,19 +3207,24 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         </button>
       </div>
 
-      <div className="ios26-card" style={{ padding: '22px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: theme === 'dark' ? '#1e293b' : '#ffffff', padding: '20px', borderRadius: '24px', border: '2px solid ' + (theme === 'dark' ? '#4b5563' : '#d1d5db') + '', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', marginBottom: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
          <div>
-            <h3 style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold', color: colors.textMain }}>📥 导入现成题库 (JSON)</h3>
+            <h3 style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold', color: colors.textMain, display: 'flex', alignItems: 'center', gap: '4px' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> 导入现成题库 (JSON)</h3>
             <p style={{ margin: 0, fontSize: '12px', color: colors.textSub }}>已有 JSON 格式题目？直接导入练习</p>
          </div>
          <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
-            <button className="ios26-btn btn-touch" style={{ padding: '10px 20px', border: 'none', color: colors.textMain, cursor: 'pointer', fontWeight: '600' }}>选择文件...</button>
+            <button className="ios26-btn" style={{ padding: '10px 18px', background: colors.primary, color: 'white', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>选择文件...</button>
             <input type="file" accept=".json" onChange={handleImportJsonQuiz} style={{ position: 'absolute', left: 0, top: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
          </div>
       </div>
 
-      <div className="ios26-card" style={{ padding: '25px', marginBottom: '20px' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '20px', color: colors.textMain, fontSize: '18px', fontWeight: '700' }}>⚙️ 出题配置</h3>
+      <div style={{ background: theme === 'dark' ? '#1e293b' : '#ffffff', padding: '20px', borderRadius: '24px', border: '2px solid ' + (theme === 'dark' ? '#4b5563' : '#d1d5db') + '', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', marginBottom: '40px' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '20px', color: colors.textMain, fontSize: '18px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg> 出题配置
+</h3>
         
         <div style={{ marginBottom: '20px', padding: '18px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.1)' }}>
           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: colors.textSub }}>API 预设 (本地)</h4>
@@ -2707,7 +3235,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                  if (id) handleApplyApiPreset(id);
                }} 
                value="" 
-               style={{ flex: 1, padding: '10px 14px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '14px', backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+               style={{ flex: 1, padding: '10px 14px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, fontSize: '14px', backdropFilter: 'blur(10px)' }}
              >
                <option value="" disabled>-- 选择已保存的配置 --</option>
                {apiPresets.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -2741,8 +3269,8 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                                onChange={(e) => setPendingPresetName(e.target.value)}
                                style={{ width: '80px', padding: '2px', border: '1px solid ' + colors.primary + '', borderRadius: '2px', fontSize: '11px' }}
                              />
-                             <button onClick={() => handleSavePresetName(p.id)} style={{ border: 'none', background: 'transparent', color: colors.successText, cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
-                             <button onClick={() => setEditingPresetId(null)} style={{ border: 'none', background: 'transparent', color: colors.textSub, cursor: 'pointer' }}>✕</button>
+                             <button onClick={() => handleSavePresetName(p.id)} style={{ border: 'none', background: 'transparent', color: colors.successText, cursor: 'pointer', fontWeight: 'bold' }}>✅</button>
+                             <button onClick={() => setEditingPresetId(null)} style={{ border: 'none', background: 'transparent', color: colors.textSub, cursor: 'pointer' }}>❌</button>
                           </>
                       ) : (
                           <>
@@ -2759,13 +3287,13 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>模型预设</label>
-          <select value={apiConfig.preset || 'custom'} onChange={(e) => handlePresetChange(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+          <select value={apiConfig.preset || 'custom'} onChange={(e) => handlePresetChange(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid ' + colors.border + '', background: colors.surface, color: colors.textMain, backdropFilter: 'blur(10px)' }}>
             {MODEL_PRESETS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
           </select>
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>接口协议类型</label>
-          <select value={apiConfig.protocol} onChange={(e) => setApiConfig({...apiConfig, protocol: e.target.value as any})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+          <select value={apiConfig.protocol} onChange={(e) => setApiConfig({...apiConfig, protocol: e.target.value as any})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid ' + colors.border + '', background: colors.surface, color: colors.textMain, backdropFilter: 'blur(10px)' }}>
             <option value="openai-compatible">OpenAI 兼容接口</option>
             <option value="gemini-native">Google Gemini 原生接口</option>
           </select>
@@ -2773,27 +3301,27 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
           <div style={{ flex: 1 }}>
              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>Base URL</label>
-             <input type="text" value={apiConfig.baseUrl} placeholder={apiConfig.protocol === 'gemini-native' ? "https://generativelanguage.googleapis.com" : "https://api.example.com"} onChange={(e) => setApiConfig({...apiConfig, baseUrl: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+             <input type="text" value={apiConfig.baseUrl} placeholder={apiConfig.protocol === 'gemini-native' ? "https://generativelanguage.googleapis.com" : "https://api.example.com"} onChange={(e) => setApiConfig({...apiConfig, baseUrl: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, backdropFilter: 'blur(10px)' }} />
           </div>
           <div style={{ flex: 1 }}>
              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>模型名称</label>
-             <input type="text" value={apiConfig.model} placeholder={apiConfig.protocol === 'gemini-native' ? "Google AI Studio 模型 ID" : "模型名称 (如 gpt-4o)"} onChange={(e) => setApiConfig({...apiConfig, model: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+             <input type="text" value={apiConfig.model} placeholder={apiConfig.protocol === 'gemini-native' ? "Google AI Studio 模型 ID" : "模型名称 (如 gpt-4o)"} onChange={(e) => setApiConfig({...apiConfig, model: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, backdropFilter: 'blur(10px)' }} />
           </div>
         </div>
         {apiConfig.protocol === 'openai-compatible' && (
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>自定义接口路径</label>
-            <input type="text" value={apiConfig.customPath} onChange={(e) => setApiConfig({...apiConfig, customPath: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+            <input type="text" value={apiConfig.customPath} onChange={(e) => setApiConfig({...apiConfig, customPath: e.target.value})} style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, backdropFilter: 'blur(10px)' }} />
           </div>
         )}
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: colors.textSub }}>API Key</label>
-          <input type="password" value={apiConfig.apiKey} onChange={(e) => setApiConfig({...apiConfig, apiKey: e.target.value})} placeholder="sk-..." style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.08)', color: colors.textMain, backdropFilter: 'blur(10px)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+          <input type="password" value={apiConfig.apiKey} onChange={(e) => setApiConfig({...apiConfig, apiKey: e.target.value})} placeholder="sk-..." style={{ width: '100%', padding: '12px 16px', borderRadius: '16px', border: '1px solid ' + colors.border + '', background: colors.inputBg, color: colors.textMain, backdropFilter: 'blur(10px)' }} />
         </div>
 
         {/* NEW: Syllabus Context Selection */}
         <div style={{ marginBottom: '20px', padding: '18px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '16px', border: '1px dashed rgba(52, 211, 153, 0.3)' }}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#34d399', fontWeight: '600' }}>📝 生成题目归属 (可选)</h4>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#34d399', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> 生成题目归属 (可选)</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <select
                     value={genSyllabusId || ''}
@@ -2850,7 +3378,11 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         </div>
 
         <div style={{ marginBottom: '20px', padding: '18px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '16px', border: '1px dashed rgba(96, 165, 250, 0.3)' }}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.primary, fontWeight: '600' }}>📚 考试大纲管理</h4>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.primary, fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+  </svg> 考试大纲管理
+</h4>
             
             {/* New: Custom Name Input */}
             <input
@@ -2919,14 +3451,14 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '5px', color: colors.textSub }}>学习资料 (支持多选 PDF / Word / JSON)</label>
           <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block', width: '100%' }}>
-            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px dashed ' + colors.primary + '', background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', color: colors.primary, cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} className="btn-touch">📂 批量上传文件 (已选 {uploadedFiles.length})</button>
+            <button style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px dashed ' + colors.primary + '', background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', color: colors.primary, cursor: 'pointer', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} className="btn-touch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path><polyline points="14 10 10 10 10 14"></polyline></svg> 批量上传文件 (已选 {uploadedFiles.length})</button>
             <input type="file" accept=".pdf,.docx,.json" multiple onChange={handleFileUpload} style={{ position: 'absolute', left: 0, top: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
           </div>
           {uploadedFiles.length > 0 && (
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {uploadedFiles.map((file, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: theme === 'dark' ? '#334155' : '#f3f4f6', borderRadius: '6px', fontSize: '13px', color: colors.textMain }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}><span style={{ fontSize: '16px' }}>📄</span><span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{file.name}</span></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}><span style={{ fontSize: '16px' }}>📑</span><span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{file.name}</span></div>
                   <button onClick={() => handleRemoveFile(idx)} style={{ background: 'transparent', border: 'none', color: colors.textSub, cursor: 'pointer', fontSize: '16px' }}>×</button>
                 </div>
               ))}
@@ -2955,21 +3487,66 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         <button onClick={async () => { setIsGeneratingInBank(true); await generateQuiz(true); }} disabled={loading || uploadedFiles.length === 0} style={{ width: '100%', padding: '12px', borderRadius: '8px', fontWeight: '600', fontSize: '16px', border: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', transition: 'background 0.3s', cursor: (loading || uploadedFiles.length === 0) ? 'not-allowed' : 'pointer', backgroundColor: (loading || uploadedFiles.length === 0) ? colors.disabled : colors.primary, color: (loading || uploadedFiles.length === 0) ? colors.textSub : 'white' }}>{loading ? "生成中..." : "✨ 生成试卷"}</button>
       </div>
 
-      <div style={{ background: theme === 'dark' ? '#1e293b' : '#f9fafb', padding: '20px', borderRadius: '16px', border: '1px solid ' + colors.border + '', marginBottom: '40px' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '20px', fontSize: '16px', fontWeight: 'bold', color: colors.textMain, display: 'flex', alignItems: 'center', gap: '8px' }}>🛠️ 刷题设置</h3>
+      <div style={{ background: theme === 'dark' ? '#1e293b' : '#ffffff', padding: '20px', borderRadius: '24px', border: '2px solid ' + (theme === 'dark' ? '#4b5563' : '#d1d5db') + '', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', marginBottom: '40px' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '20px', fontSize: '16px', fontWeight: 'bold', color: colors.textMain, display: 'flex', alignItems: 'center', gap: '8px' }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg> 刷题设置
+</h3>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: colors.textMain, marginBottom: '8px' }}>答题模式</label>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {['practice', 'exam', 'review'].map(m => (
-              <button key={m} onClick={() => setQuizSettings({...quizSettings, mode: m as any})} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid ' + quizSettings.mode === m ? colors.primary : colors.border + '', background: quizSettings.mode === m ? (theme === 'dark' ? '#1e3a8a' : '#eff6ff') : colors.surface, color: quizSettings.mode === m ? colors.primary : colors.textSub, fontWeight: '600', cursor: 'pointer' }}>{m === 'practice' ? '📝 练习模式' : m === 'exam' ? '🎓 模拟考试' : '📖 背题模式'}</button>
+              <button key={m} onClick={() => setQuizSettings({...quizSettings, mode: m as any})} style={{ flex: 1, padding: '10px', borderRadius: '16px', border: '2px solid ' + quizSettings.mode === m ? colors.primary : (theme === 'dark' ? '#4b5563' : '#d1d5db') + '', background: quizSettings.mode === m ? (theme === 'dark' ? '#1e3a8a' : '#eff6ff') : (theme === 'dark' ? '#374151' : '#f3f4f6'), color: quizSettings.mode === m ? colors.primary : colors.textSub, fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                {m === 'practice' ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                      <polyline points="10 9 9 9 8 9"/>
+                    </svg> 练习模式
+                  </>
+                ) : m === 'exam' ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="8" y1="6" x2="21" y2="6"/>
+                      <line x1="8" y1="12" x2="21" y2="12"/>
+                      <line x1="8" y1="18" x2="21" y2="18"/>
+                      <line x1="3" y1="6" x2="3.01" y2="6"/>
+                      <line x1="3" y1="12" x2="3.01" y2="12"/>
+                      <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg> 模拟考试
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg> 背题模式
+                  </>
+                )}
+              </button>
             ))}
           </div>
         </div>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: colors.textMain, marginBottom: '8px' }}>生成速度模式</label>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={() => saveSpeedMode('quality')} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid ' + speedMode === 'quality' ? colors.primary : colors.border + '', background: speedMode === 'quality' ? (theme === 'dark' ? '#1e3a8a' : '#eff6ff') : colors.surface, color: speedMode === 'quality' ? colors.primary : colors.textSub, fontWeight: '600', cursor: 'pointer' }}>⭐ 质量优先</button>
-            <button onClick={() => saveSpeedMode('fast')} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid ' + speedMode === 'fast' ? colors.primary : colors.border + '', background: speedMode === 'fast' ? (theme === 'dark' ? '#1e3a8a' : '#eff6ff') : colors.surface, color: speedMode === 'fast' ? colors.primary : colors.textSub, fontWeight: '600', cursor: 'pointer' }}>⚡ 速度优先</button>
+            <button onClick={() => saveSpeedMode('quality')} style={{ flex: 1, padding: '10px', borderRadius: '16px', border: '2px solid ' + speedMode === 'quality' ? colors.primary : (theme === 'dark' ? '#4b5563' : '#d1d5db') + '', background: speedMode === 'quality' ? (theme === 'dark' ? '#1e3a8a' : '#eff6ff') : (theme === 'dark' ? '#374151' : '#f3f4f6'), color: speedMode === 'quality' ? colors.primary : colors.textSub, fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg> 质量优先
+            </button>
+            <button onClick={() => saveSpeedMode('fast')} style={{ flex: 1, padding: '10px', borderRadius: '16px', border: '2px solid ' + speedMode === 'fast' ? colors.primary : (theme === 'dark' ? '#4b5563' : '#d1d5db') + '', background: speedMode === 'fast' ? (theme === 'dark' ? '#1e3a8a' : '#eff6ff') : (theme === 'dark' ? '#374151' : '#f3f4f6'), color: speedMode === 'fast' ? colors.primary : colors.textSub, fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 10h7l-1.405 1.405a2 2 0 1 1-2.83-2.83L17 5h-4v5z"/>
+                  <path d="M13 14h7l-1.405 1.405a2 2 0 1 1-2.83-2.83L17 9h-4v5z"/>
+                  <path d="M1 19h12v-2H1v2z"/>
+                  <path d="M1 9h12V7H1v2z"/>
+                </svg> 速度优先
+              </button>
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', opacity: quizSettings.mode === 'review' ? 0.4 : 1, pointerEvents: quizSettings.mode === 'review' ? 'none' : 'auto' }}>
@@ -3030,7 +3607,16 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           maxHeight: '400px',
           overflowY: 'auto'
         }}>
-          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.textSub }}>📋 答题卡</h4>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.textSub, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"/>
+              <line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/>
+              <line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg> 答题卡
+          </h4>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', 
@@ -3048,12 +3634,12 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                   bgColor = colors.successBg;
                   borderColor = colors.successBorder;
                   textColor = colors.successText;
-                  badge = '✓';
+                  badge = '✅';
                 } else {
                   bgColor = colors.errorBg;
                   borderColor = colors.errorBorder;
                   textColor = colors.errorText;
-                  badge = '✕';
+                  badge = '❌';
                 }
               } else if (index === currentQIndex) {
                 bgColor = theme === 'dark' ? '#1e3a8a' : '#dbeafe';
@@ -3123,26 +3709,40 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           position: 'fixed',
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
+          width: '100vw',
+          height: '100vh',
           background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           zIndex: 1000,
-          padding: '20px'
+          margin: 0,
+          padding: 0
         }}>
           <div style={{
             background: colors.surface,
             borderRadius: '16px',
             padding: '20px',
             maxWidth: '600px',
-            width: '100%',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-            border: '1px solid ' + colors.border + ''
+            width: 'calc(100% - 40px)',
+            maxHeight: '90vh',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+            border: '1px solid ' + colors.border,
+            position: 'absolute',
+            zIndex: 1001,
+            overflowY: 'auto',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-              <h3 style={{ margin: 0, fontSize: '18px', color: colors.textMain }}>📋 题目切换</h3>
+              <h3 style={{ margin: 0, fontSize: '18px', color: colors.textMain, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg> 题目切换
+              </h3>
               <button
                 onClick={() => setShowAnswerSheetModal(false)}
                 style={{
@@ -3198,7 +3798,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         {/* Progress prompt removed from here, now handled via modal before entering */}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <button onClick={() => navigateTo('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px' }}>🏠</button>
+          <button onClick={() => navigateTo('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textSub }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
           <div style={{ fontSize: '16px', fontWeight: 'bold', color: colors.textSub }}>题目 {currentQIndex + 1} / {quizData.length}</div>
           <div style={{ display: 'flex', gap: '10px' }}>
              {!confirmClearProgress ? (
@@ -3217,8 +3817,14 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           <div style={{ height: '100%', width: '' + ((currentQIndex + 1) / quizData.length) * 100 + '%', background: colors.primary, borderRadius: '3px', transition: 'width 0.3s' }} />
         </div>
 
-        {/* 答题卡按钮 */}
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+        {/* 答题时间和答题卡按钮 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          {/* 答题时间显示 - 移到左上角 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '20px', background: colors.primary + '15', border: '1px solid ' + colors.primary + '' }}>
+            <span style={{ fontSize: '14px', color: colors.primary, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 答题时间: {formatTime(quizTime)}</span>
+          </div>
+          
+          {/* 答题卡按钮 */}
           <button
             onClick={() => setShowAnswerSheetModal(true)}
             style={{
@@ -3234,58 +3840,91 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
               gap: '8px'
             }}
           >
-            📋 切换题目 ({currentQIndex + 1} / {quizData.length})
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+              <line x1="8" y1="6" x2="21" y2="6"/>
+              <line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/>
+              <line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg> 切换题目 ({currentQIndex + 1} / {quizData.length})
           </button>
         </div>
 
         {/* 渲染答题卡弹窗 */}
         {renderAnswerSheetModal()}
-        <div style={{ background: colors.surface, padding: '30px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid ' + colors.border + '' }} className="card-touch fade-in-up">
+        
+        {/* 题目卡片容器 */}
+        <div style={{ background: colors.surface, padding: '30px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid ' + colors.border + '', marginBottom: '20px' }} className="quiz-question-card">
+          
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', background: isMultiple ? (theme === 'dark' ? '#78350f' : '#fef3c7') : (theme === 'dark' ? '#1e3a8a' : '#dbeafe'), color: isMultiple ? '#fbbf24' : '#60a5fa' }}>{isMultiple ? '多选题' : '单选题'}</span>
-              {question.sourceDocument && <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', background: theme === 'dark' ? '#334155' : '#f1f5f9', color: colors.textSub }}>📄 {question.sourceDocument}</span>}
+              {question.sourceDocument && <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', background: theme === 'dark' ? '#334155' : '#f1f5f9', color: colors.textSub }}>📑 {question.sourceDocument}</span>}
             </div>
-            <button onClick={() => toggleFavorite(question)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '24px', color: isFav ? '#eab308' : colors.textSub }}>{isFav ? '★' : '☆'}</button>
+            <button onClick={() => toggleFavorite(question)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '24px', color: isFav ? '#eab308' : colors.textSub, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>                {isFav ? (                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor"/>                    </svg>                ) : (                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>                    </svg>                )}            </button>
           </div>
           
           <h2 style={{ marginTop: 0, fontSize: '20px', lineHeight: '1.6', color: colors.textMain }}>{question.stem}</h2>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
-            {question.options.map((opt, idx) => {
-              const letter = indexToLetter(idx); // Use visual index for consistency if ID logic differs
-              let bgColor = theme === 'dark' ? '#1e293b' : '#f3f4f6';
-              let textColor = colors.textMain;
-              let borderColor = 'transparent';
-              let badge = letter; // 显示字母而不是选项ID
-              let badgeBg = 'rgba(0,0,0,0.1)';
-              let badgeColor = colors.textMain;
+          {/* 选项区域带导航按钮 */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '16px', marginTop: '20px' }}>
+            {/* 上一题按钮 - 左侧 */}
+            {(quizSettings.showNavButtons || isReview) && (
+              <button disabled={currentQIndex === 0} onClick={() => { setCurrentQIndex(prev => prev - 1); setTempSelection([]); }} style={{ padding: '4px 8px', border: 'none', background: 'transparent', color: currentQIndex === 0 ? colors.textSub : '#eab308', cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                <span>←</span> 上一题
+              </button>
+            )}
+            
+            {/* 选项列表 */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {question.options.map((opt, idx) => {
+                const letter = indexToLetter(idx); // Use visual index for consistency if ID logic differs
+                let bgColor = theme === 'dark' ? '#334155' : '#e2e8f0';
+                let textColor = colors.textMain;
+                let borderColor = 'transparent';
+                let badge = letter; // 显示字母而不是选项ID
+                let badgeBg = theme === 'dark' ? '#475569' : '#cbd5e1';
+                let badgeColor = colors.textMain;
 
-              const isSelected = isAnswered 
-                ? (userAnswer.answerIds || userAnswer.selected).includes(opt.id) // Support new/old field
-                : tempSelection.includes(opt.id);
-              
-              const isCorrectOption = question.answerIds.includes(opt.id);
+                const isSelected = isAnswered 
+                  ? (userAnswer.answerIds || userAnswer.selected).includes(opt.id) // Support new/old field
+                  : tempSelection.includes(opt.id);
+                
+                const isCorrectOption = question.answerIds.includes(opt.id);
 
-              if (showFeedback) {
-                if (isCorrectOption) {
-                  bgColor = colors.successBg; textColor = colors.successText; borderColor = colors.successBorder; badge = '✓'; badgeBg = colors.successBorder; badgeColor = 'white';
-                } else if (!isReview && isSelected && !userAnswer.isCorrect) {
-                  bgColor = colors.errorBg; textColor = colors.errorText; borderColor = colors.errorBorder; badge = '✕'; badgeBg = colors.errorBorder; badgeColor = 'white';
-                } else if (!isReview && isSelected && userAnswer.isCorrect) { 
-                   bgColor = colors.successBg; textColor = colors.successText; borderColor = colors.successBorder;
+                if (showFeedback) {
+                  if (isCorrectOption) {
+                    bgColor = colors.successBg; textColor = colors.successText; borderColor = colors.successBorder; 
+                    badge = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'; 
+                    badgeBg = colors.successBorder; badgeColor = 'white';
+                  } else if (!isReview && isSelected && !userAnswer.isCorrect) {
+                    bgColor = colors.errorBg; textColor = colors.errorText; borderColor = colors.errorBorder; 
+                    badge = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; 
+                    badgeBg = colors.errorBorder; badgeColor = 'white';
+                  } else if (!isReview && isSelected && userAnswer.isCorrect) { 
+                     bgColor = colors.successBg; textColor = colors.successText; borderColor = colors.successBorder;
+                  }
+                } else {
+                  if (isSelected) { bgColor = theme === 'dark' ? '#1e40af' : '#dbeafe'; textColor = theme === 'dark' ? '#bfdbfe' : '#1e3a8a'; borderColor = colors.primary; }
                 }
-              } else {
-                if (isSelected) { bgColor = theme === 'dark' ? '#172554' : '#eff6ff'; textColor = theme === 'dark' ? '#93c5fd' : '#1e3a8a'; borderColor = colors.primary; }
-              }
 
-              return (
-                <button key={opt.id} onClick={() => handleSelectOption(opt.id)} disabled={isAnswered || isReview} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '16px', background: bgColor, color: textColor, border: '2px solid ' + borderColor + '', borderRadius: '12px', cursor: (isAnswered || isReview) ? 'default' : 'pointer', fontSize: '16px', textAlign: 'left', transition: 'all 0.2s', opacity: isReview && !isCorrectOption ? 0.6 : 1 }}>
-                  <span style={{ width: '28px', height: '28px', borderRadius: isMultiple ? '4px' : '50%', background: badgeBg, color: badgeColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }}>{badge}</span>
-                  <span>{opt.text}</span>
-                </button>
-              );
-            })}
+                return (
+                  <button key={opt.id} onClick={() => handleSelectOption(opt.id)} disabled={isAnswered || isReview} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '16px', background: bgColor, color: textColor, border: '2px solid ' + borderColor + '', borderRadius: '12px', cursor: (isAnswered || isReview) ? 'default' : 'pointer', fontSize: '16px', textAlign: 'left', transition: 'all 0.2s', opacity: isReview && !isCorrectOption ? 0.6 : 1 }} className="quiz-option">
+                    <span style={{ width: '28px', height: '28px', borderRadius: isMultiple ? '4px' : '50%', background: badgeBg, color: badgeColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: badge }}></span>
+                    <span>{opt.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* 下一题按钮 - 右侧 */}
+            {(quizSettings.showNavButtons || isReview) && (
+              <button onClick={() => { if (isLastQuestion) finishQuiz(); else { setCurrentQIndex(prev => prev + 1); setTempSelection([]); } }} style={{ padding: '4px 8px', border: 'none', background: 'transparent', color: '#eab308', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                {isLastQuestion ? (isReview ? "结束背题" : "📈 查看结果") : "下一题"}
+                <span>→</span>
+              </button>
+            )}
           </div>
           {!isReview && !isAnswered && ((isMultiple || quizSettings.confirmSubmit) && tempSelection.length > 0 && (
             <button onClick={() => submitAnswer(tempSelection)} style={{ width: '100%', marginTop: '20px', padding: '14px', background: colors.primary, color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>{isMultiple ? `确认提交 (已选 ${tempSelection.length} 项)` : "确认提交"}</button>
@@ -3300,7 +3939,20 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
             }).join('、')}</h4>
             {renderFormattedExplanation(question, theme)}
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
-               <button onClick={() => setIsChatOpen(true)} style={{ background: colors.surface, color: colors.primary, border: '1px solid ' + colors.primary + '', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>🤖 问问 AI</button>
+               <button onClick={() => setIsChatOpen(true)} style={{ background: colors.surface, color: colors.primary, border: '1px solid ' + colors.primary + '', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="17" x2="12" y2="17"/>
+    <line x1="12" y1="7" x2="12" y2="7"/>
+    <line x1="17" y1="12" x2="17" y2="12"/>
+    <line x1="7" y1="12" x2="7" y2="12"/>
+    <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
+    <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
+    <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
+    <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
+  </svg> 问问 AI
+</button>
                {suggestedQuestions.length > 0 && (
                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'flex-end' }}>
                    {suggestedQuestions.map((sq, i) => (
@@ -3316,7 +3968,11 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
         {selectedSyllabus && (
             <div style={{ marginBottom: '20px', padding: '12px', background: theme === 'dark' ? '#1e293b' : '#f8fafc', borderRadius: '8px', fontSize: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', border: '1px dashed ' + colors.border + '' }}>
-               <span style={{ color: colors.textSub, fontWeight: 'bold' }}>📁 归类修正:</span>
+               <span style={{ color: colors.textSub, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                 </svg> 归类修正:
+               </span>
                <select 
                  value={currentAssignedBookId || ''} 
                  onChange={(e) => updateQuestionMeta(question.id.toString(), m => ({...m, assignedBookId: e.target.value, assignedTopicId: 'other' }))}
@@ -3351,7 +4007,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         )}
 
         <div style={{ background: theme === 'dark' ? '#1e293b' : '#f9fafb', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px dashed ' + colors.border + '' }}>
-           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: colors.textSub }}>🏷️ 标签管理</h4>
+           <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: colors.textSub, display: 'flex', alignItems: 'center', gap: '4px' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> 标签管理</h4>
            
            <div style={{ marginBottom: '10px' }}>
              <label style={{ fontSize: '12px', display: 'block', marginBottom: '4px', color: colors.textSub }}>预设标签 (点击添加)</label>
@@ -3421,7 +4077,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         {stats && (
           <div style={{ marginTop: '30px', background: colors.surface, borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'hidden', border: '1px solid ' + colors.border + '' }}>
             <button onClick={() => setShowStats(!showStats)} style={{ width: '100%', padding: '15px 20px', background: theme === 'dark' ? '#1e293b' : '#f9fafb', border: 'none', borderBottom: showStats ? '1px solid ' + colors.border + '' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-               <span style={{ fontWeight: 'bold', color: colors.textMain }}>📊 书本/来源分布统计</span>
+               <span style={{ fontWeight: 'bold', color: colors.textMain, display: 'flex', alignItems: 'center', gap: '4px' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> 书本/来源分布统计</span>
                <span style={{ fontSize: '12px', color: colors.textSub }}>{showStats ? '收起' : '展开'}</span>
             </button>
             {showStats && (
@@ -3446,18 +4102,6 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
           </div>
         )}
 
-        {(quizSettings.showNavButtons || isReview) && (
-          <div className="quiz-nav-bar">
-            {/* 答题时间显示 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: 'auto' }}>
-                <span style={{ fontSize: '12px', color: colors.textSub }}>答题时间:</span>
-                <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.primary }}>{formatTime(quizTime)}</span>
-            </div>
-
-            <button disabled={currentQIndex === 0} onClick={() => { setCurrentQIndex(prev => prev - 1); setTempSelection([]); }} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid ' + colors.border + '', background: currentQIndex === 0 ? (theme === 'dark' ? '#1e293b' : '#f3f4f6') : colors.surface, color: currentQIndex === 0 ? colors.textSub : colors.textSub, cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer' }}>← 上一题</button>
-            <button onClick={() => { if (isLastQuestion) finishQuiz(); else { setCurrentQIndex(prev => prev + 1); setTempSelection([]); } }} style={{ marginLeft: '10px', padding: '10px 20px', borderRadius: '8px', background: colors.primary, color: 'white', border: 'none', cursor: 'pointer' }}>{isLastQuestion ? (isReview ? "结束背题" : "📊 查看结果") : "下一题 →"}</button>
-          </div>
-        )}
       </div>
     );
   };
@@ -3465,7 +4109,11 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   const renderMistakes = () => (
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h1 style={{ margin: 0, color: colors.textMain }}>📕 错题本</h1>
+        <h1 style={{ margin: 0, color: colors.textMain, display: 'flex', alignItems: 'center', gap: '10px' }}>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+  </svg> 错题本
+</h1>
         <button onClick={() => navigateTo('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
       </div>
 
@@ -3527,7 +4175,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                  fontWeight: 'bold' 
                }}
              >
-               ♻️ 恢复所有
+               🔄 恢复所有
              </button>
              <button onClick={() => setShowClearTrashDialog(true)} style={{ background: colors.surface, border: '1px solid #ef4444', color: '#ef4444', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>🗑 清空垃圾篓</button>
           </div>
@@ -3559,7 +4207,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
     return (
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h1 style={{ margin: 0, color: colors.textMain }}>📜 题库</h1>
+        <h1 style={{ margin: 0, color: colors.textMain, display: 'flex', alignItems: 'center', gap: '8px' }}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> 题库</h1>
         <button onClick={() => navigateTo('home')} style={{ background: theme === 'dark' ? '#334155' : '#e5e7eb', border: 'none', color: colors.textMain, padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>返回</button>
       </div>
       
@@ -3920,7 +4568,9 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                        onClick={handleStartWholeSyllabusQuiz} 
                        style={{ padding: '6px 12px', borderRadius: '6px', background: colors.primary, color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
                    >
-                       📚 整套大纲刷题
+                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', verticalAlign: 'middle' }}>
+                         <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                       </svg> 整套大纲刷题
                    </button>
                </div>
                
@@ -3998,8 +4648,8 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                                                                <div key={topic.id}>
                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px dashed ' + colors.border + '' }}>
                                                                        <div style={{ paddingLeft: `${20 + (level - 1) * 20}px`, fontWeight: 'bold' }}>
-                                                                           <span style={{ fontSize: '14px', color: colors.textMain }}>{topic.title}</span>
-                                                                       </div>
+                                                   <span style={{ fontSize: '16px', color: colors.textMain }}>{topic.title}</span>
+                                               </div>
                                                                    </div>
                                                                    {renderTopics(topic.topics!, level + 1)}
                                                                </div>
@@ -4012,9 +4662,9 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                                                    <div key={topic.id}>
                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px dashed ' + colors.border + '' }}>
                                                            <div style={{ paddingLeft: `${20 + (level - 1) * 20}px` }}>
-                                                               <span style={{ fontSize: '14px', color: colors.textMain }}>{topic.title}</span>
-                                                               <span style={{ marginLeft: '8px', fontSize: '12px', color: colors.textSub }}>({topicData.questions.length} 题)</span>
-                                                           </div>
+                                               <span style={{ fontSize: '16px', color: colors.textMain }}>{topic.title}</span>
+                                               <span style={{ marginLeft: '8px', fontSize: '14px', color: colors.textSub }}>({topicData.questions.length} 题)</span>
+                                           </div>
                                                            <button onClick={() => startQuizWithResume({ sessionKey: buildTopicSessionKey(selectedSyllabus.id, book.id, topic.id), questions: prepareOrderedQuestions(topicData.questions), title: topic.title })} style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '6px', background: colors.surface, border: '1px solid ' + colors.primary + '', color: colors.primary, cursor: 'pointer' }}>刷题</button>
                                                        </div>
                                                        {topic.topics && topic.topics.length > 0 && renderTopics(topic.topics, level + 1)}
@@ -4028,8 +4678,8 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
                                    {bookData.otherQuestions.length > 0 && (
                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px dashed ' + colors.border + '' }}>
                                             <div style={{ paddingLeft: '20px' }}>
-                                                <span style={{ fontSize: '14px', color: colors.textMain, fontStyle: 'italic' }}>其他 / 未归类章节</span>
-                                                <span style={{ marginLeft: '8px', fontSize: '12px', color: colors.textSub }}>({bookData.otherQuestions.length} 题)</span>
+                                                <span style={{ fontSize: '16px', color: colors.textMain, fontStyle: 'italic' }}>其他 / 未归类章节</span>
+                                                <span style={{ marginLeft: '8px', fontSize: '14px', color: colors.textSub }}>({bookData.otherQuestions.length} 题)</span>
                                             </div>
                                             <button onClick={() => startQuizWithResume({ sessionKey: buildTopicSessionKey(selectedSyllabus.id, book.id, 'other'), questions: prepareOrderedQuestions(bookData.otherQuestions), title: '未归类章节' })} style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '6px', background: colors.surface, border: '1px solid ' + colors.primary + '', color: colors.primary, cursor: 'pointer' }}>刷题</button>
                                        </div>
@@ -4131,7 +4781,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
       {/* Resume Dialog Modal */}
       {resumeDialog && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div style={{ width: '90%', maxWidth: '350px', backgroundColor: colors.surface, padding: '24px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+          <div style={{ width: '90%', maxWidth: '350px', backgroundColor: colors.surface, padding: '24px', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)', animation: 'float-in 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards', filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.3))' }}>
             <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold', color: colors.textMain }}>
               {resumeDialog.title ? `继续: ${resumeDialog.title}` : '继续上次进度？'}
             </h3>
@@ -4148,7 +4798,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
       {showClearMistakesDialog && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div style={{ width: '90%', maxWidth: '400px', backgroundColor: colors.surface, padding: '24px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+          <div style={{ width: '90%', maxWidth: '400px', backgroundColor: colors.surface, padding: '24px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', animation: 'fade-in-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 'bold', color: colors.textMain }}>确认清空错题本？</h3>
             <p style={{ fontSize: '14px', color: colors.textSub, lineHeight: '1.5', marginBottom: '20px' }}>本操作会把当前错题本中的所有题目移入垃圾篓，但不会立即永久删除。您仍可以在垃圾篓中恢复或彻底删除。</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
@@ -4161,7 +4811,7 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
       {showClearTrashDialog && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div style={{ width: '90%', maxWidth: '400px', backgroundColor: colors.surface, padding: '24px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+          <div style={{ width: '90%', maxWidth: '400px', backgroundColor: colors.surface, padding: '24px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', animation: 'fade-in-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 'bold', color: colors.textMain }}>确认清空垃圾篓？</h3>
             <p style={{ fontSize: '14px', color: colors.textSub, lineHeight: '1.5', marginBottom: '20px' }}>本操作会永久删除垃圾篓中的所有题目记录，且不可恢复。</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
@@ -4202,24 +4852,75 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         </div>
       )}
 
-      {(screen === 'quiz' || screen === 'result') && (
-        <button className="ai-fab" onClick={() => setIsChatOpen(true)}>🤖</button>
-      )}
-      <ChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} messages={chatMessages} onSend={handleChatSend} isLoading={chatLoading} currentContext={screen === 'quiz' ? quizData[currentQIndex] : null} theme={theme} />
+      {/* AI 入口按钮 - 可拖拽版本 */}
+      <button 
+        ref={aiButtonRef}
+        className="ai-fab"
+        onClick={(e) => {
+          // 只有当不是拖拽状态且为点击事件时才触发
+          if (!isDragging && isClick) {
+            // 点击切换聊天界面的显示/隐藏
+            setIsChatOpen(!isChatOpen);
+          }
+        }}
+        onMouseDown={handleDragStart}
+        onMouseUp={() => {
+          // 鼠标释放后，延迟标记为点击事件
+          // 如果没有发生拖拽移动，这将是一个点击事件
+          clickTimeoutRef.current = setTimeout(() => {
+            setIsClick(true);
+          }, 100);
+        }}
+        style={{
+          position: 'fixed',
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          zIndex: 1000, // 确保始终在最上层
+          transform: isDragging ? 'scale(1.1)' : 'scale(1)', // 拖拽时轻微放大
+          transition: isDragging ? 'transform 0.1s' : 'all 0.3s ease' // 平滑过渡
+        }}
+      >
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="17" x2="12" y2="17"/>
+          <line x1="12" y1="7" x2="12" y2="7"/>
+          <line x1="17" y1="12" x2="17" y2="12"/>
+          <line x1="7" y1="12" x2="7" y2="12"/>
+          <line x1="16.5" y1="7.5" x2="16.5" y2="7.5"/>
+          <line x1="7.5" y1="16.5" x2="7.5" y2="16.5"/>
+          <line x1="16.5" y1="16.5" x2="16.5" y2="16.5"/>
+          <line x1="7.5" y1="7.5" x2="7.5" y2="7.5"/>
+        </svg>
+      </button>
+      <ChatSidebar 
+      isOpen={isChatOpen} 
+      onClose={() => setIsChatOpen(false)} 
+      messages={chatMessages} 
+      onSend={handleChatSend} 
+      isLoading={chatLoading} 
+      theme={theme} 
+      chatSessions={chatSessions} 
+      currentSessionId={currentSessionId} 
+      setCurrentSessionId={setCurrentSessionId} 
+      createNewSession={createNewSession} 
+      deleteSession={deleteSession} 
+      exportSession={exportSession} 
+    />
       
       {/* 页面容器 - 添加页面切换动画 */}
       <div style={{ position: 'relative', width: '100%', minHeight: '100vh', maxWidth: window.innerWidth < 768 ? '100%' : '800px', margin: '0 auto', padding: '20px 0' }}>
         {/* 首页 */}
         {screen === 'home' && (
-          <div style={{ 
+          <div key="home" style={{ 
             position: 'relative', 
             width: '100%', 
             minHeight: '100%', 
             opacity: 1, 
-            transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: 'scale(1)',
             zIndex: 10,
-            animation: 'fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+            animation: 'page-float-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards'
           }}>
             {renderHome()}
           </div>
@@ -4227,15 +4928,14 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         
         {/* 历史记录界面 */}
         {screen === 'history' && (
-          <div style={{ 
+          <div key="history" style={{ 
             position: 'relative', 
             width: '100%', 
             minHeight: '100%', 
             opacity: 1, 
-            transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: 'scale(1)',
             zIndex: 10,
-            animation: 'fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+            animation: 'page-float-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards'
           }}>
             {renderHistory()}
           </div>
@@ -4243,14 +4943,14 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         
         {/* 刷题界面 */}
         {screen === 'quiz' && (
-          <div style={{ 
+          <div key="quiz" style={{ 
             position: 'relative', 
             width: '100%', 
             minHeight: '100%', 
             opacity: 1, 
-            transition: 'opacity 0.3s ease, transform 0.3s ease',
-            transform: transitionDirection === 'left' ? 'translateX(-100%)' : transitionDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
-            zIndex: 10
+            transform: 'scale(1)',
+            zIndex: 10,
+            animation: 'page-float-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards'
           }}>
             {renderQuiz()}
           </div>
@@ -4258,14 +4958,14 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         
         {/* 考试结果界面 */}
         {screen === 'result' && (
-          <div style={{ 
+          <div key="result" style={{ 
             position: 'relative', 
             width: '100%', 
             minHeight: '100%', 
             opacity: 1, 
-            transition: 'opacity 0.3s ease, transform 0.3s ease',
-            transform: transitionDirection === 'left' ? 'translateX(-100%)' : transitionDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
-            zIndex: 10
+            transform: 'scale(1)',
+            zIndex: 10,
+            animation: 'page-float-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards'
           }}>
             {renderResult()}
           </div>
@@ -4273,14 +4973,14 @@ const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
         
         {/* 错题本界面 */}
         {screen === 'mistakes' && (
-          <div style={{ 
+          <div key="mistakes" style={{ 
             position: 'relative', 
             width: '100%', 
             minHeight: '100%', 
             opacity: 1, 
-            transition: 'opacity 0.3s ease, transform 0.3s ease',
-            transform: transitionDirection === 'left' ? 'translateX(-100%)' : transitionDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
-            zIndex: 10
+            transform: 'scale(1)',
+            zIndex: 10,
+            animation: 'page-float-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards'
           }}>
             {renderMistakes()}
           </div>

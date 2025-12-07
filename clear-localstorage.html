@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Clear LocalStorage</h2>
+<button onclick="clearSyllabusPresets()">Clear Syllabus Presets</button>
+<button onclick="clearAll()">Clear All LocalStorage</button>
+<div id="result"></div>
+
+<script>
+function showResult(message) {
+  document.getElementById('result').innerHTML = message;
+}
+
+function clearSyllabusPresets() {
+  localStorage.removeItem('syllabus-presets');
+  showResult('Syllabus presets cleared!');
+}
+
+function clearAll() {
+  localStorage.clear();
+  showResult('All localStorage cleared!');
+}
+
+// Display current syllabus presets
+function displaySyllabusPresets() {
+  const presets = localStorage.getItem('syllabus-presets');
+  if (presets) {
+    const parsed = JSON.parse(presets);
+    showResult('Current syllabus presets: ' + JSON.stringify(parsed, null, 2));
+  } else {
+    showResult('No syllabus presets found');
+  }
+}
+
+displaySyllabusPresets();
+</script>
+</body>
+</html>
